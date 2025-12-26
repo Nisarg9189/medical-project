@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+#cardList::-webkit-scrollbar {
+  display: none;
+}
+
+#icon {
+  font-size: 50px;
+  color: rgb(202, 41, 41);
+}
+
+#patientBookIcon {
+  font-size: 50px;
+  color: #21c45d;
+}
+
+#patientReportIcon {
+  font-size: 50px;
+  color: #0da2e7;
+}
