@@ -19,7 +19,7 @@ export default function MainContent() {
         setAnswer("Thinking...");
 
         try {
-            const res = await fetch("http://localhost:8080/ask", {
+            const res = await fetch("https://backend-lugs.onrender.com/ask", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

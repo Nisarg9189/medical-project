@@ -4,7 +4,7 @@ export default function Header() {
     
     const handleLogout = async () => {
         // Clear any authentication tokens or user data here if needed
-        let logout = await fetch("http://localhost:8080/auth/logout", {
+        let logout = await fetch("https://backend-lugs.onrender.com/auth/logout", {
             method: "GET",
             credentials: "include"
         });

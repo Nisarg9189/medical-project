@@ -17,7 +17,7 @@ export default function AuthForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     // For now just log — replace with real API call
-    let data = await fetch(`http://localhost:8080/auth/${isLogin ? "login" : "signup"}`, {
+    let data = await fetch(`https://backend-lugs.onrender.com/auth/${isLogin ? "login" : "signup"}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -28,7 +28,7 @@ export default function AuthForm() {
     if(!data.ok) {
       let err = await data.json();
       alert(err.message);
-      await fetch("http://localhost:8080/auth/logout", { method: "GET", credentials: "include" });
+      await fetch("https://backend-lugs.onrender.com/auth/logout", { method: "GET", credentials: "include" });
       return;
     }
     let res = await data.json();

@@ -11,7 +11,7 @@ export default function DocotrMainContent() {
 
     useEffect(() => {
         let fetchDoctorDetails = async () => {
-            let res = await fetch(`http://localhost:8080/doctors/${doctorId}/details`, {
+            let res = await fetch(`https://backend-lugs.onrender.com/doctors/${doctorId}/details`, {
                 method: "GET",
                 credentials: "include"
             });

@@ -23,7 +23,7 @@ export default function CreateDoctor() {
         e.preventDefault();
 
         let res = await fetch(
-            `http://localhost:8080/admin/${adminId}/create/doctor`,
+            `https://backend-lugs.onrender.com/admin/${adminId}/create/doctor`,
             {
                 method: "POST",
                 headers: {

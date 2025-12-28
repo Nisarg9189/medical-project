@@ -9,7 +9,7 @@ export default function DoctorUpcomingPatients({doctorId}) {
         //fetch patients data from backend
         const fetchPatients = async () => {
             try {
-                let response = await fetch(`http://localhost:8080/doctors/${doctorId}/patients`, {
+                let response = await fetch(`https://backend-lugs.onrender.com/doctors/${doctorId}/patients`, {
                     method: "GET",
                     credentials: "include"
                 });

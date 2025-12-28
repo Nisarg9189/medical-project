@@ -19,7 +19,7 @@ export default function BookAppointment() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    let bookedDate = await fetch("http://localhost:8080/patient/book-appontment", {
+    let bookedDate = await fetch("https://backend-lugs.onrender.com/patient/book-appontment", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -39,7 +39,7 @@ export default function BookAppointment() {
   useEffect(() => {
     const collectCamps = async () => {
     try {
-      let response = await fetch("http://localhost:8080/utils/camps", {
+      let response = await fetch("https://backend-lugs.onrender.com/utils/camps", {
         method: "GET",
         credentials: "include"
       });

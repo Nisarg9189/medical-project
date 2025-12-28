@@ -6,7 +6,7 @@ export default function UpcomingCamps({adminId}) {
     useEffect(() => {
         const getUpcomingCamps = async () => {
             try {
-                let camp = await fetch(`http://localhost:8080/admin/${adminId}/camps`, {
+                let camp = await fetch(`https://backend-lugs.onrender.com/admin/${adminId}/camps`, {
                     method: "GET",
                     credentials: "include"
                 });

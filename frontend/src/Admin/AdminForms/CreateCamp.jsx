@@ -16,7 +16,7 @@ export default function CreateCamp() {
 
     useEffect(() => {
         const fetchDoctors = async () => {
-            let r = await fetch(`http://localhost:8080/admin/${adminId}/doctors`, {
+            let r = await fetch(`https://backend-lugs.onrender.com/admin/${adminId}/doctors`, {
                 method: "GET",
                 credentials: "include"
             });
@@ -50,7 +50,7 @@ export default function CreateCamp() {
 
     let handleCampForm = async (e) => {
         e.preventDefault();
-        let r = await fetch(`http://localhost:8080/admin/${adminId}/create/camp`, {
+        let r = await fetch(`https://backend-lugs.onrender.com/admin/${adminId}/create/camp`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

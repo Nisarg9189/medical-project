@@ -4,7 +4,7 @@ export default function PatientsUpcomingCamps({patientId}) {
 
     useEffect(() => {
         let fetchCamps = async () => {
-            let res = await fetch("http://localhost:8080/utils/camps", {
+            let res = await fetch("https://backend-lugs.onrender.com/utils/camps", {
                 method: "GET",
                 credentials: "include"
             });
@@ -19,7 +19,7 @@ export default function PatientsUpcomingCamps({patientId}) {
     let handleRegister = async (id) => {
         console.log("Camp ID : ",id);
 
-        let data = await fetch(`http://localhost:8080/patient/camps/${id}/patient/${patientId}`, {
+        let data = await fetch(`https://backend-lugs.onrender.com/patient/camps/${id}/patient/${patientId}`, {
             method: "POST",
             credentials: "include"
         });

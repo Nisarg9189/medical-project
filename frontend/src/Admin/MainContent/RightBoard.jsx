@@ -4,7 +4,7 @@ export default function RightBoard() {
     let [news, setNews] = useState([]);
     useEffect(() => {
         let fetchNews = async () => {
-            let res = await fetch("http://localhost:8080/utils/news", {
+            let res = await fetch("https://backend-lugs.onrender.com/utils/news", {
                 method: "GET",
                 credentials: "include"
             });

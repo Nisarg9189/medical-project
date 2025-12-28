@@ -9,7 +9,7 @@ export default function DoctorCard({ doctorId }) {
     useEffect(() => {
         // Fetch patient data based on doctorId
         const fetchPatientsCount = async () => {
-            let response = await fetch(`http://localhost:8080/doctors/${doctorId}/appointments`, {
+            let response = await fetch(`https://backend-lugs.onrender.com/doctors/${doctorId}/appointments`, {
                 method: "GET",
                 credentials: "include"
             });

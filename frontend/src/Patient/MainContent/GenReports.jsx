@@ -12,7 +12,7 @@ export default function GenReports() {
     useEffect(() => {
         // Fetch camps for the patient
         let fetchCamps = async () => {
-            let res = await fetch(`http://localhost:8080/patient/camps/${patientId}`, {
+            let res = await fetch(`https://backend-lugs.onrender.com/patient/camps/${patientId}`, {
                 method: "GET",
                 credentials: "include"
             });
@@ -39,7 +39,7 @@ export default function GenReports() {
             return;
         }
 
-        let res = await fetch(`http://localhost:8080/patient/${patientId}/report/${selectedCamp.campId}`, {
+        let res = await fetch(`https://backend-lugs.onrender.com/patient/${patientId}/report/${selectedCamp.campId}`, {
             method: "GET",
             responseType: "blob",
             credentials: "include"
