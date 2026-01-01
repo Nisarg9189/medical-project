@@ -1,6 +1,9 @@
+import { set } from "mongoose";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+const { setLoading } = useLoading();
 export default function AuthForm() {
+
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [form, setForm] = useState({
@@ -16,36 +19,44 @@ export default function AuthForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     // For now just log — replace with real API call
-    let data = await fetch(`https://backend-lugs.onrender.com/auth/${isLogin ? "login" : "signup"}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(form),
-      credentials: "include"
-    });
-    if(!data.ok) {
-      let err = await data.json();
-      alert(err.message);
-      await fetch("https://backend-lugs.onrender.com/auth/logout", { method: "GET", credentials: "include" });
-      return;
-    }
-    let res = await data.json();
-    console.log(res);
-    if(!res.ok) {
-      alert(res.message);
-      return;
-    }
-    // Navigate based on role after login/signup
-    if(res.user.role === "admin") {
-      navigate(`/${res.user._id}/admin`);
-    } else if(res.user.role === "doctor") {
-      navigate(`/${res.user._id}/doctor`);
-    } else if(res.user.role === "patient") {
-      navigate(`/${res.user._id}/patient`);
-    } else {
-      alert("Unknown role!");
+    try {
+      let data = await fetch(`https://backend-lugs.onrender.com/auth/${isLogin ? "login" : "signup"}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+        credentials: "include"
+      });
+      if (!data.ok) {
+        let err = await data.json();
+        alert(err.message);
+        await fetch("https://backend-lugs.onrender.com/auth/logout", { method: "GET", credentials: "include" });
+        return;
+      }
+      let res = await data.json();
+      console.log(res);
+      if (!res.ok) {
+        alert(res.message);
+        return;
+      }
+      // Navigate based on role after login/signup
+      if (res.user.role === "admin") {
+        navigate(`/${res.user._id}/admin`);
+      } else if (res.user.role === "doctor") {
+        navigate(`/${res.user._id}/doctor`);
+      } else if (res.user.role === "patient") {
+        navigate(`/${res.user._id}/patient`);
+      } else {
+        alert("Unknown role!");
+      }
+    } catch (error) {
+      // console.error("Error during authentication:", error);
+      alert("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 

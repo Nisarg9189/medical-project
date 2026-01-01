@@ -11,18 +11,14 @@ import AuthForm from "./auth/AuthForm"
 import DoctorHeader from "./Doctor/DoctorHeader/DoctorHeader"
 import PatientHeader from "./Patient/Header/PatientHeader"
 import GenReports from "./Patient/MainContent/GenReports"
+import GlobalLoader from "./GlobalLoader";
 
 function App() {
   return (
     <>
       <BrowserRouter>
-
-        {/* Header always visible */}
-
-
-        {/* Page content that changes */}
-         {/* <div className="bg-gradient-to-b to-sky-200 from-white"> */}
         {/* <Header /> */}
+        <GlobalLoader />
         <Routes>
          <Route path="/" element={<AuthForm />} />
           {/* Default page */}
@@ -32,8 +28,6 @@ function App() {
             <MainContent />
           </>
           } />
-          {/* </div> */}
-          
           {/* When clicking "Create Camp" */}
           <Route path="/:adminId/create-camp" element={<CreateCamp />} />
           <Route path="/:adminId/create-doctor" element={<CreateDoctor />} />
