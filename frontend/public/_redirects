@@ -1,0 +1,19 @@
+# ===============================
+# React SPA rewrite for Render
+# ===============================
+
+# Match all routes and serve index.html
+# This is necessary for client-side routing to work
+# Status 200 = rewrite, not redirect (URL stays the same)
+# -----------------------------------------------------
+/* /index.html 200
+
+# Example dynamic routes handled by React (just for reference)
+# /:adminId/admin
+# /:adminId/create-camp
+# /:adminId/create-doctor
+# /:doctorId/doctor
+# /addDiagnosis/:appointmentId
+# /:patientId/patient
+# /:patientId/book
+# /:patientId/reports
