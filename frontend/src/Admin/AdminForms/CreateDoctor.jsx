@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
+import { useLoading } from "../../LoadingContext";
 
 export default function CreateDoctor() {
+    const { setLoading } = useLoading();
     const navigate = useNavigate();
     const {adminId} = useParams();
     let [doctor, setDoctor] = useState({
@@ -21,33 +23,42 @@ export default function CreateDoctor() {
 
     let handleDoctorForm = async (e) => {
         e.preventDefault();
+        setLoading(true);
 
-        let res = await fetch(
-            `https://backend-lugs.onrender.com/admin/${adminId}/create/doctor`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(doctor),
-                credentials: "include"
+        try {
+            let res = await fetch(
+                `https://backend-lugs.onrender.com/admin/${adminId}/create/doctor`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(doctor),
+                    credentials: "include"
+                }
+            );
+
+            let dataBack = await res.json();
+            // console.log(dataBack);
+            if(dataBack.ok && !dataBack.ok) {
+                alert("Unauthorized Access");
+                return;
             }
-        );
 
-        let dataBack = await res.json();
-        // console.log(dataBack);
-        if(dataBack.ok && !dataBack.ok) {
-            alert("Unauthorized Access");
-            return;
+            // clear form
+            setDoctor({
+                name: "",
+                email: "",
+                password: "",
+                specialization: ""
+            });
+            alert("Doctor created successfully!");
+        } catch (error) {
+            console.error("Error creating doctor:", error);
+            alert("Failed to create doctor. Please try again.");
+        } finally {
+            setLoading(false);
         }
-
-        // clear form
-        setDoctor({
-            name: "",
-            email: "",
-            password: "",
-            specialization: ""
-        });
     };
 
     return (

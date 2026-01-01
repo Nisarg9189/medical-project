@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useLoading } from "../../LoadingContext";
+
 export default function BookAppointment() {
+  const { setLoading } = useLoading();
   const { patientId } = useParams();
   console.log("Patient ID in BookAppointment:", patientId);
   const [form, setForm] = useState({
@@ -19,21 +22,36 @@ export default function BookAppointment() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    let bookedDate = await fetch("https://backend-lugs.onrender.com/patient/book-appontment", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({...form, patientId: patientId}),
-      credentials: "include"
-    })
-    let res = await bookedDate.json();
-    if(!res.ok) {
-      alert("Error");
-      return;
+    setLoading(true);
+    try {
+      let bookedDate = await fetch("https://backend-lugs.onrender.com/patient/book-appontment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({...form, patientId: patientId}),
+        credentials: "include"
+      })
+      let res = await bookedDate.json();
+      if(!res.ok) {
+        alert("Error booking appointment");
+        return;
+      }
+      // console.log("Appointment Data:", form);
+      setForm({
+        age: "",
+        camp: "",
+        appointmentDate: "",
+        appointmentTime: "",
+        gender: ""
+      });
+      alert("Appointment booked successfully!");
+    } catch (error) {
+      console.error("Error booking appointment:", error);
+      alert("Failed to book appointment. Please try again.");
+    } finally {
+      setLoading(false);
     }
-    // console.log("Appointment Data:", form);
-    alert("Appointment booked successfully!");
   };
 
   useEffect(() => {

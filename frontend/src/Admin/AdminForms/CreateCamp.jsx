@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
+import { useLoading } from "../../LoadingContext";
 
 export default function CreateCamp() {
+    const { setLoading } = useLoading();
     const navigate = useNavigate();
     const {adminId} = useParams();
     let [data, setData] = useState({
@@ -25,7 +27,7 @@ export default function CreateCamp() {
                     alert("Unauthorized Access");
                     return;
                 }
-            console.log(doctors);
+            // console.log(doctors);
             setDoctors(doctors);
         }
 
@@ -50,28 +52,37 @@ export default function CreateCamp() {
 
     let handleCampForm = async (e) => {
         e.preventDefault();
-        let r = await fetch(`https://backend-lugs.onrender.com/admin/${adminId}/create/camp`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data),
-            credentials: "include"
-        });
-        // console.log(r.status);
-        let backEndData = await r.json();
-        if(backEndData.ok && !backEndData.ok) {
-            alert("Unauthorized Access");
-            return;
+        setLoading(true);
+        try {
+            let r = await fetch(`https://backend-lugs.onrender.com/admin/${adminId}/create/camp`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data),
+                credentials: "include"
+            });
+            // console.log(r.status);
+            let backEndData = await r.json();
+            if(backEndData.ok && !backEndData.ok) {
+                alert("Unauthorized Access");
+                return;
+            }
+            // console.log(backEndData);
+            // console.log(data);
+            setData({
+                villageName: "",
+                Date: "",
+                Time: "",
+                doctorId: ""
+            })
+            alert("Camp created successfully!");
+        } catch (error) {
+            console.error("Error creating camp:", error);
+            alert("Failed to create camp. Please try again.");
+        } finally {
+            setLoading(false);
         }
-        // console.log(backEndData);
-        // console.log(data);
-        setData({
-            villageName: "",
-            Date: "",
-            Time: "",
-            doctorId: ""
-        })
     }
 
 

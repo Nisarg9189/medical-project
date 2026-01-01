@@ -1,6 +1,7 @@
-import {useLoading} from "../LoadingContext";
+import { useLoading } from "../LoadingContext";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 export default function AuthForm() {
 const { setLoading } = useLoading();
   const navigate = useNavigate();

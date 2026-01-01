@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
+import { useLoading } from "../../LoadingContext";
+
 export default function PatientsUpcomingCamps({patientId}) {
+    const { setLoading } = useLoading();
     let [camps, setCamps] = useState([]);
 
     useEffect(() => {
@@ -18,18 +21,26 @@ export default function PatientsUpcomingCamps({patientId}) {
 
     let handleRegister = async (id) => {
         console.log("Camp ID : ",id);
-
-        let data = await fetch(`https://backend-lugs.onrender.com/patient/camps/${id}/patient/${patientId}`, {
-            method: "POST",
-            credentials: "include"
-        });
-        let campDetails = await data.json();
-        console.log(campDetails.ok);
-        if(campDetails && campDetails.ok === false) {
-            alert("Not Access For registration");
-            return;
+        setLoading(true);
+        try {
+            let data = await fetch(`https://backend-lugs.onrender.com/patient/camps/${id}/patient/${patientId}`, {
+                method: "POST",
+                credentials: "include"
+            });
+            let campDetails = await data.json();
+            console.log(campDetails.ok);
+            if(campDetails && campDetails.ok === false) {
+                alert("Not Access For registration");
+                return;
+            }
+            alert("Registered successfully!");
+            // console.log(campDetails);
+        } catch (error) {
+            console.error("Error registering for camp:", error);
+            alert("Failed to register for camp. Please try again.");
+        } finally {
+            setLoading(false);
         }
-        // console.log(campDetails);
     }
 
     return (

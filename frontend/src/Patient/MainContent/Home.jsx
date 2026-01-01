@@ -3,9 +3,10 @@ import PatientsUpcomingCamps from "./PatientsUpcomingCamps";
 import ManageSchedule from "./ManageSchedule";
 import { useParams } from "react-router-dom";
 import { useState } from "react";
-
+import { useLoading } from "../../LoadingContext";
 
 export default function MainContent() {
+    const { setLoading } = useLoading();
     const { patientId } = useParams();
     // console.log("Patient ID in Home:", patientId);
     const [question, setQuestion] = useState("");
@@ -17,6 +18,7 @@ export default function MainContent() {
         if (!question.trim()) return;
 
         setAnswer("Thinking...");
+        setLoading(true);
 
         try {
             const res = await fetch("https://backend-lugs.onrender.com/ask", {
@@ -30,8 +32,11 @@ export default function MainContent() {
 
             const data = await res.json();
             setAnswer(data.answer);
+            setQuestion("");
         } catch (error) {
             setAnswer("Unable to fetch response. Please try again.");
+        } finally {
+            setLoading(false);
         }
     };
 

@@ -1,8 +1,10 @@
 import {  useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
+import { useLoading } from "../../LoadingContext";
 
 export default function AddDiagnosis() {
+  const { setLoading } = useLoading();
   const navigate = useNavigate();
   const {appointmentId} = useParams();
   console.log("Appointment ID:", appointmentId);
@@ -21,6 +23,7 @@ export default function AddDiagnosis() {
     // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       let response = await fetch(`https://backend-lugs.onrender.com/doctors/addDiagnosis/${appointmentId}`, {
         method: "POST",
@@ -41,6 +44,8 @@ export default function AddDiagnosis() {
     } catch (error) {
       console.error("Error adding diagnosis:", error);
       alert("Failed to add diagnosis. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
   
