@@ -18,6 +18,7 @@ function App() {
     <>
       <BrowserRouter>
         {/* <Header /> */}
+        <GlobalLoader />
         <Routes>
          <Route path="/" element={<AuthForm />} />
           {/* Default page */}
