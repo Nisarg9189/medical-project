@@ -13,16 +13,25 @@ import PatientHeader from "./Patient/Header/PatientHeader"
 import GenReports from "./Patient/MainContent/GenReports"
 import GlobalLoader from "./GlobalLoader";
 
+// Simple 404 page
+function NotFoundPage() {
+  return (
+    <div className="text-center mt-20">
+      <h1 className="text-4xl font-bold">404</h1>
+      <p>Oops! Page not found.</p>
+      <a href="/" className="text-blue-500 underline">Go Home</a>
+    </div>
+  );
+}
+
 function App() {
   return (
     <>
       <BrowserRouter>
-        {/* <Header /> */}
         <GlobalLoader />
         <Routes>
          <Route path="/" element={<AuthForm />} />
           {/* Default page */}
-          {/* <div className="bg-gradient-to-b to-sky-200 from-white"> */}
           <Route path="/:adminId/admin" element={<>
             <Header />
             <MainContent />
@@ -48,9 +57,9 @@ function App() {
           <Route path="/:patientId/book" element={< BookAppointment />} />
           <Route path="/:patientId/reports" element={< GenReports />} />
 
+          <Route path="*" element={<NotFoundPage />} />
+
         </Routes>
-        
-        {/* </div> */}
       </BrowserRouter>
     </>
   )
