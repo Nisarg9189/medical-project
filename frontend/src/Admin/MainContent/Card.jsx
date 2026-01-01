@@ -10,7 +10,7 @@ export default function Card({ adminId }) {
     useEffect(() => {
         //fetch card data from backend
         const fetchCardData = async () => {
-            let response = await fetch(`http://localhost:8080/admin/${adminId}/card-details`, {
+            let response = await fetch(`https://backend-lugs.onrender.com/admin/${adminId}/card-details`, {
                 method: "GET",
                 credentials: "include"
             });
