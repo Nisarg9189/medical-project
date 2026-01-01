@@ -9,21 +9,25 @@ export default function Card({ adminId }) {
 
     useEffect(() => {
         //fetch card data from backend
-        const fetchCardData = async () => {
-            let response = await fetch(`https://backend-lugs.onrender.com/admin/${adminId}/card-details`, {
-                method: "GET",
-                credentials: "include"
-            });
-            let data = await response.json();
-            console.log(data)
-            if(!data.ok) {
-                alert("Unauthorized Access");
-                return;
+        try {
+            const fetchCardData = async () => {
+                let response = await fetch(`https://backend-lugs.onrender.com/admin/${adminId}/card-details`, {
+                    method: "GET",
+                    credentials: "include"
+                });
+                let data = await response.json();
+                // console.log(data);
+                if (!data.ok) {
+                    alert("Unauthorized Access");
+                    return;
+                }
+                // console.log(data);
+                setCardData(data);
             }
-            // console.log(data);
-            setCardData(data);
+            fetchCardData();
+        } catch (error) {
+            console.log(error);
         }
-        fetchCardData();
     }, [adminId])
     return (
         <div id="cardList" className="mt-10 flex gap-5 items-start w-full overflow-x-auto">
