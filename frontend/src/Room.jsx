@@ -151,6 +151,7 @@ export default function Room() {
                                 ref={myVideoRef}
                                 autoPlay
                                 muted
+                                playsInline
                                 className="w-full h-full object-cover"
                             />
                         </div>
