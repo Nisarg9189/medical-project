@@ -15,6 +15,10 @@ export default function DoctorUpcomingPatients({doctorId}) {
                     method: "GET",
                     credentials: "include"
                 });
+                if(!response.ok) {
+                    alert("Unauthorized Access!");
+                    return;
+                }
                 let data = await response.json();
                 if(data.ok && !data.ok) {
                     alert("Unauthorized Access");
