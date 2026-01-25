@@ -115,7 +115,7 @@ export default function Room() {
                 <video
                     ref={myVideoRef}
                     autoPlay
-                    muted
+                    playsInline
                     width="500"
                     height="500"
                 />
