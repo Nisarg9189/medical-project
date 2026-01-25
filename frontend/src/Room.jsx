@@ -168,6 +168,7 @@ export default function Room() {
                             <video
                                 ref={remoteVideoRef}
                                 autoPlay
+                                playsInline
                                 className="w-full h-full object-cover"
                             />
                         </div>
