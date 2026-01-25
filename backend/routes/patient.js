@@ -7,12 +7,14 @@ const Appoinment = require("../models/appoinment");
 const Camp = require("../models/camp");
 const {isLoggedIn} = require("../utils/middleware");
 const pdfDocument = require("pdfkit");
+const wrapAsync = require("../utils/wrapAsync");
+const ExpressError = require("../utils/expressError");
 
-router.post("/camps/:campId/patient/:patientId", isLoggedIn,  async (req, res) => {
+router.post("/camps/:campId/patient/:patientId", isLoggedIn, wrapAsync(async (req, res) => {
   let { campId, patientId } = req.params;
   let checkExisting = await Appoinment.findOne({ campId, patientId});
-  console.log(checkExisting);
-  if (checkExisting && checkExisting.isDone) {
+  // console.log(checkExisting);
+  if (checkExisting) {
     return res.json({ ok: false });
   }
 
@@ -25,9 +27,9 @@ router.post("/camps/:campId/patient/:patientId", isLoggedIn,  async (req, res) =
   });
   await appoinment.save();
   res.json({ message: "Registred Successfully", ok: true });
-});
+}));
 
-router.post("/book-appontment", isLoggedIn,  async (req, res) => {
+router.post("/book-appontment", isLoggedIn,  wrapAsync(async (req, res) => {
   console.log(req.body);
   const { patientId, age, camp, appointmentDate, appointmentTime, gender } = req.body;
 
@@ -43,9 +45,9 @@ router.post("/book-appontment", isLoggedIn,  async (req, res) => {
   });
   await appointment.save();
   res.json({ message: "Appointment booked successfully!", ok: true});
-});
+}));
 
-router.get("/:patientId/report/:campId", isLoggedIn, async (req, res) => {
+router.get("/:patientId/report/:campId", isLoggedIn, wrapAsync(async (req, res) => {
   let { patientId, campId } = req.params;
   console.log(patientId, campId);
   let appointment = await Appoinment.findOne({ patientId, _id: campId, isDone: true })
@@ -85,14 +87,14 @@ router.get("/:patientId/report/:campId", isLoggedIn, async (req, res) => {
   doc.text(`Prescription: ${appointment.prescription}`);
 
   doc.end();
-});
+}));
 
-router.get("/camps/:patientId", isLoggedIn, async (req, res) => {
+router.get("/camps/:patientId", isLoggedIn, wrapAsync(async (req, res) => {
   let {patientId} = req.params;
 
   let patientsCamps = await Appoinment.find({patientId, isDone: true}).populate("campId");
   console.log(patientsCamps);
   res.json(patientsCamps);
-});
+}));
 
 module.exports = router;

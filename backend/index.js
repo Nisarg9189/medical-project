@@ -1,7 +1,15 @@
 require("dotenv").config();
 
+const http = require("http");
+const { Server } = require("socket.io");
 const express = require("express");
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+  }
+});
 const cors = require("cors");
 const mongoose = require("mongoose");
 const session = require("express-session");
@@ -36,13 +44,45 @@ const sessionInfo = {
     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    secure: true,
-    sameSite: "none"
+    secure: false,
+    sameSite: "lax"
   },
 };
 
 app.set("trust proxy", 1);
 app.use(session(sessionInfo));
+
+const emailToSocketIdMap = new Map();
+const socketIdToEmailMap = new Map();
+
+io.on("connection", (socket) => {
+  console.log("socket connected:", socket.id);
+
+  socket.on("room:join", (data) => {
+    const {email, room, doctorId } = data;
+    emailToSocketIdMap.set(email, socket.id);
+    socketIdToEmailMap.set(socket.id, email);
+    io.to(room).emit("user:joined", { email, id: socket.id }); // notify others in the room
+    socket.join(room); // join the specified room
+    io.to(socket.id).emit("room:join", data); // send back to the same user
+  });
+
+  socket.on("call:user", ({ to, offer }) => {
+    io.to(to).emit("incoming:call", {from: socket.id, offer });
+  });
+
+  socket.on("call:accepted", ({ to, ans }) => {
+    io.to(to).emit("call:accepted", { from: socket.id, ans });
+  });
+
+  socket.on("peer:nego:needed", ({ offer, to }) => {
+    io.to(to).emit("peer:nego:needed", { from: socket.id, offer });
+  });
+
+  socket.on("peer:nego:done", ({ to, ans }) => {
+    io.to(to).emit("peer:nego:final", { from: socket.id, ans });
+  });
+})
 
 main().then(() => {
   console.log("Connected to MongoDB");
@@ -61,8 +101,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use(cors({
-  // origin: "http://localhost:5173",
-  origin: "https://medical-project-nmyr.onrender.com",
+  origin: "http://localhost:5173",
+  // origin: process.env.FRONTEND_URL,
   credentials: true
 }));   // allow React frontend
 
@@ -130,10 +170,15 @@ app.post("/ask", async (req, res) => {
 
     } catch (error) {
       console.log(error);
-        res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error.message });
     }
 });
 
-app.listen(8080, () => {
+app.use((err, req, res) => {
+  const { statusCode = 500, message = "Something went wrong!" } = err;
+  res.status(statusCode).json({ error: message });
+});
+
+server.listen(8080, () => {
   console.log("Server running on port 8080");
 });

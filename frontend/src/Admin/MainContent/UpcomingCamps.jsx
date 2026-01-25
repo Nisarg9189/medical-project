@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 
+const API_URL = import.meta.env.VITE_API;
+
 export default function UpcomingCamps({adminId}) {
     const [camps, setCamps] = useState([]);
 
     useEffect(() => {
         const getUpcomingCamps = async () => {
             try {
-                let camp = await fetch(`https://backend-lugs.onrender.com/admin/${adminId}/camps`, {
+                let camp = await fetch(`${API_URL}/admin/${adminId}/camps`, {
                     method: "GET",
                     credentials: "include"
                 });
@@ -14,18 +16,28 @@ export default function UpcomingCamps({adminId}) {
                 console.log(res);
                 if(res.ok && !res.ok) {
                     alert("Unauthorized Access");
+                    setCamps([]);
                     return;
                 }
                 // console.log(res);
                 setCamps(res);
             } catch (err) {
                 console.error("Error fetching doctors:", err);
+                setCamps([]);
             }
         };
 
         getUpcomingCamps();
     }, [adminId]); // runs only once
 
+    const handleCancleCamp = async (campId) => {
+        console.log("Cancle Camp ID : ", campId);
+    }
+
+    const handleEditCamp = async (campId) => {
+        console.log("Edit Camp ID : ", campId);
+    }
+    
     return (
         <>
             <div className="overflow-x-auto">
@@ -64,27 +76,27 @@ export default function UpcomingCamps({adminId}) {
                                     Date: {new Date(camp.Date).toLocaleDateString()}
                                 </p>
                                 <p>
-                                    Doctor: {camp.AssignDoctor?.name} |
-                                    Registered: {camp.registeredCount || 0} patients
+                                    Doctor: {camp.AssignDoctor?.name}
+                                    {/* Registered: {camp.registeredCount || 0} patients */}
                                 </p>
                             </div>
 
                             {/* Right side buttons */}
                             <div className="flex items-center justify-center gap-5">
 
-                                {/* <button
+                                <button
                                     className="shrink-0 bg-white px-2 py-2 rounded-lg hover:bg-sky-500 transition-all duration-300 hover:text-white"
-                                    onClick={() => handleViewDetails(camp._id)}
+                                    onClick={() => handleCancleCamp(camp._id)}
                                 >
-                                    View Details
-                                </button> */}
+                                    Cancle
+                                </button>
 
-                                {/* <button
+                                <button
                                     className="shrink-0 px-2 py-2 bg-sky-500 rounded-lg text-white"
                                     onClick={() => handleEditCamp(camp._id)}
                                 >
                                     Edit
-                                </button> */}
+                                </button>
 
                             </div>
                         </div>

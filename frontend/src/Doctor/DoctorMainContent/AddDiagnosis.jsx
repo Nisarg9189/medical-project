@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { useLoading } from "../../LoadingContext";
 
+const API_URL = import.meta.env.VITE_API;
+
 export default function AddDiagnosis() {
   const { setLoading } = useLoading();
   const navigate = useNavigate();
@@ -25,7 +27,7 @@ export default function AddDiagnosis() {
     e.preventDefault();
     setLoading(true);
     try {
-      let response = await fetch(`https://backend-lugs.onrender.com/doctors/addDiagnosis/${appointmentId}`, {
+      let response = await fetch(`${API_URL}/doctors/addDiagnosis/${appointmentId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

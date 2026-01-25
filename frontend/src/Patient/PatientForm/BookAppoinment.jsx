@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useLoading } from "../../LoadingContext";
 
+const API_URL = import.meta.env.VITE_API;
+
 export default function BookAppointment() {
   const { setLoading } = useLoading();
   const { patientId } = useParams();
@@ -24,7 +26,7 @@ export default function BookAppointment() {
     e.preventDefault();
     setLoading(true);
     try {
-      let bookedDate = await fetch("https://backend-lugs.onrender.com/patient/book-appontment", {
+      let bookedDate = await fetch(`${API_URL}/patient/book-appontment`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -57,7 +59,7 @@ export default function BookAppointment() {
   useEffect(() => {
     const collectCamps = async () => {
     try {
-      let response = await fetch("https://backend-lugs.onrender.com/utils/camps", {
+      let response = await fetch(`${API_URL}/utils/camps`, {
         method: "GET",
         credentials: "include"
       });
@@ -209,6 +211,20 @@ export default function BookAppointment() {
             <option value="Dr. Mehta">Dr. Mehta</option>
           </select>
         </div> */}
+        {/* Doctor */}
+        <div>
+          <label className="text-sm font-medium">Select Appoinment Type</label>
+          <select
+            name="doctor"
+            className="w-full mt-1 border p-2 rounded focus:ring focus:ring-green-300"
+            onChange={handleChange}
+            // required
+          >
+            <option value="">Choose a Type</option>
+            <option value="offline">Offline</option>
+            <option value="online">Online</option>
+          </select>
+        </div>
 
         {/* Button */}
         <button

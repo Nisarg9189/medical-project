@@ -1,9 +1,18 @@
 import { useLoading } from "../LoadingContext";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { ErrorContext } from "../ErrorContext";
+import { useContext } from "react";
+
+const API_URL = import.meta.env.VITE_API;
 
 export default function AuthForm() {
-const { setLoading } = useLoading();
+
+  const location = useLocation();
+  const [flash, setFlash] = useState("");
+  const { error, setError } = useContext(ErrorContext);
+  // console.log("Error Context:", error);
+  const { setLoading } = useLoading();
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [form, setForm] = useState({
@@ -22,7 +31,7 @@ const { setLoading } = useLoading();
     setLoading(true);
     // For now just log — replace with real API call
     try {
-      let data = await fetch(`https://backend-lugs.onrender.com/auth/${isLogin ? "login" : "signup"}`, {
+      let data = await fetch(`${API_URL}/auth/${isLogin ? "login" : "signup"}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -32,14 +41,13 @@ const { setLoading } = useLoading();
       });
       if (!data.ok) {
         let err = await data.json();
-        alert(err.message);
-        await fetch("https://backend-lugs.onrender.com/auth/logout", { method: "GET", credentials: "include" });
+        setError("Server Error!");
         return;
       }
       let res = await data.json();
       console.log(res);
       if (!res.ok) {
-        alert(res.message);
+        setError("Invalid User!");
         return;
       }
       // Navigate based on role after login/signup
@@ -50,19 +58,49 @@ const { setLoading } = useLoading();
       } else if (res.user.role === "patient") {
         navigate(`/${res.user._id}/patient`);
       } else {
-        alert("Unknown role!");
+        setError("Invalid User!");
       }
     } catch (error) {
       // console.error("Error during authentication:", error);
-      alert("An error occurred. Please try again.");
+      setError("An error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    if (location.state?.message) {
+      setFlash(location.state.message);
+
+      setTimeout(() => {
+        setFlash("");
+      }, 3000);
+    }
+  }, [location.state]);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
       <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md">
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 text-red-700 border border-red-400 rounded flex justify-between items-center">
+            <p>{error}</p>
+            <button onClick={() => setError(null)}>X</button>
+          </div>
+        )}
+
+        {flash && (
+          <div className="
+          fixed top-5 right-5
+          bg-green-500 text-white
+          px-4 py-3 rounded-lg
+          shadow-lg
+          transition-opacity
+        ">
+            {flash}
+          </div>
+        )}
+
         <h2 className="text-3xl font-bold text-center mb-6">
           {isLogin ? "Login" : "Sign Up"}
         </h2>

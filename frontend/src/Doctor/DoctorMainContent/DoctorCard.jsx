@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+
+const API_URL = import.meta.env.VITE_API;
+
 export default function DoctorCard({ doctorId }) {
     let [patient, setPatient] = useState({
         pending: 0,
@@ -9,7 +12,7 @@ export default function DoctorCard({ doctorId }) {
     useEffect(() => {
         // Fetch patient data based on doctorId
         const fetchPatientsCount = async () => {
-            let response = await fetch(`https://backend-lugs.onrender.com/doctors/${doctorId}/appointments`, {
+            let response = await fetch(`${API_URL}/doctors/${doctorId}/appointments`, {
                 method: "GET",
                 credentials: "include"
             });

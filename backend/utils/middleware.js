@@ -5,6 +5,6 @@ module.exports.isLoggedIn = (req, res, next) => {
     next();
   } else {
     console.log("Unauthorized access attempt");
-    res.status(401).json({message: "Unauthorized", ok: false });
+    res.status(401).json({message: "Unauthorized access", ok: false });
   }
 }

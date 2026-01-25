@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 
+const API_URL = import.meta.env.VITE_API;
+
 export default function Card({ adminId }) {
     let [cardData, setCardData] = useState({
         totalCamps: 0,
@@ -11,7 +13,7 @@ export default function Card({ adminId }) {
         //fetch card data from backend
         try {
             const fetchCardData = async () => {
-                let response = await fetch(`https://backend-lugs.onrender.com/admin/${adminId}/card-details`, {
+                let response = await fetch(`${API_URL}/admin/${adminId}/card-details`, {
                     method: "GET",
                     credentials: "include"
                 });

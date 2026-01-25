@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { useLoading } from "../../LoadingContext";
 
+const API_URL = import.meta.env.VITE_API;
+
 export default function CreateDoctor() {
     const { setLoading } = useLoading();
     const navigate = useNavigate();
@@ -27,7 +29,7 @@ export default function CreateDoctor() {
 
         try {
             let res = await fetch(
-                `https://backend-lugs.onrender.com/admin/${adminId}/create/doctor`,
+                `${API_URL}/admin/${adminId}/create/doctor`,
                 {
                     method: "POST",
                     headers: {

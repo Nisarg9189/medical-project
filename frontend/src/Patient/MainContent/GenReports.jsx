@@ -1,5 +1,8 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
+
+const API_URL = import.meta.env.VITE_API;
+
 export default function GenReports() {
     const { patientId } = useParams();
     let [camps, setCamps] = useState([]);
@@ -12,7 +15,7 @@ export default function GenReports() {
     useEffect(() => {
         // Fetch camps for the patient
         let fetchCamps = async () => {
-            let res = await fetch(`https://backend-lugs.onrender.com/patient/camps/${patientId}`, {
+            let res = await fetch(`${API_URL}/patient/camps/${patientId}`, {
                 method: "GET",
                 credentials: "include"
             });
@@ -39,7 +42,7 @@ export default function GenReports() {
             return;
         }
 
-        let res = await fetch(`https://backend-lugs.onrender.com/patient/${patientId}/report/${selectedCamp.campId}`, {
+        let res = await fetch(`${API_URL}/patient/${patientId}/report/${selectedCamp.campId}`, {
             method: "GET",
             responseType: "blob",
             credentials: "include"

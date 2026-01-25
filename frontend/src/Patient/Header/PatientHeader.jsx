@@ -1,10 +1,13 @@
 import { useNavigate } from "react-router-dom";
+
+const API_URL = import.meta.env.VITE_API;
+
 export default function PatientHeader() {
     const navigate = useNavigate();
     
     const handleLogout = async () => {
         // Clear any authentication tokens or user data here if needed
-        let logout = await fetch("https://backend-lugs.onrender.com/auth/logout", {
+        let logout = await fetch(`${API_URL}/auth/logout`, {
             method: "GET",
             credentials: "include"
         });

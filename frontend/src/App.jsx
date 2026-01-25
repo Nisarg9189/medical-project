@@ -12,7 +12,7 @@ import DoctorHeader from "./Doctor/DoctorHeader/DoctorHeader"
 import PatientHeader from "./Patient/Header/PatientHeader"
 import GenReports from "./Patient/MainContent/GenReports"
 import GlobalLoader from "./GlobalLoader";
-
+import Room from "./Room"
 // Simple 404 page
 function NotFoundPage() {
   return (
@@ -56,6 +56,8 @@ function App() {
           } />
           <Route path="/:patientId/book" element={< BookAppointment />} />
           <Route path="/:patientId/reports" element={< GenReports />} />
+
+          <Route path="/room/:roomId" element={< Room />} />
 
           <Route path="*" element={<NotFoundPage />} />
 

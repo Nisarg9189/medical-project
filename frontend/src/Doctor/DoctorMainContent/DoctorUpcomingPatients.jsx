@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+const API_URL = import.meta.env.VITE_API;
+
 export default function DoctorUpcomingPatients({doctorId}) {
     const navigate = useNavigate();
     let [patients, setPatients] = useState([]);
@@ -9,7 +11,7 @@ export default function DoctorUpcomingPatients({doctorId}) {
         //fetch patients data from backend
         const fetchPatients = async () => {
             try {
-                let response = await fetch(`https://backend-lugs.onrender.com/doctors/${doctorId}/patients`, {
+                let response = await fetch(`${API_URL}/doctors/${doctorId}/patients`, {
                     method: "GET",
                     credentials: "include"
                 });

@@ -4,6 +4,8 @@ const Admin = require("../models/admin");
 const Doctor = require("../models/doctor");
 const Patient = require("../models/patient");
 const bcrypt = require("bcrypt");
+const wrapAsync = require("../utils/wrapAsync");
+const ExpressError = require("../utils/expressError");
 
 async function hashPassword(password) {
   const saltRounds = 10;
@@ -14,7 +16,7 @@ async function verifyPassword(password, hashPassword) {
   return await bcrypt.compare(password, hashPassword);
 }
 
-router.post("/login", async (req, res) => {
+router.post("/login", wrapAsync(async (req, res) => {
   let { email, password, role } = req.body;
   console.log(req.body);
 
@@ -40,17 +42,17 @@ router.post("/login", async (req, res) => {
     role: role
   };
     // console.log("User logged in:", req.session.user);
-    res.json({ message: "Login successful", user, ok: true});
+    return res.json({ message: "Login successful", user, ok: true});
   } else {
-    res.status(401).json({ message: "Invalid credentials", ok: false });
+    return res.status(401).json({ message: "Invalid credentials", ok: false });
   }
-});
+}));
 
 
 // signup
-router.post("/signup", async (req, res) => {
+router.post("/signup", wrapAsync(async (req, res) => {
   let { fullName, email, password, role } = req.body;
-  console.log(req.body);
+  // console.log(req.body);
   let existingUser = await Admin.findOne({ email });
   if (existingUser) {
     res.status(400).json({ message: "User already exists", ok: false });
@@ -85,24 +87,22 @@ router.post("/signup", async (req, res) => {
       email: email,
       role: "patient"
     }
-    res.json({ message: "Signup successful", user: newPatient, ok: true });
-    return;
+    return res.json({ message: "Signup successful", user: newPatient, ok: true });
   } else {
     res.json({ message: "Signup Unsuccessful", ok: false });
   }
-});
+}));
 
-router.get("/logout", (req, res) => {
+router.get("/logout",(req, res) => {
   req.session.destroy((err) => {
     if(err) {
-      console.log("Error destroying session:", err);
-      res.json({ ok: false, message: "Error logging out" });
-      return;
+      // console.log("Error destroying session:", err);
+      return res.json({ ok: false, message: "Error logging out" });
     }
     console.log("Session destroyed successfully");
     res.clearCookie("connect.sid");
-    res.json({ message: "Logged out successfully", ok: true});
+    return res.json({ message: "Logged out successfully", ok: true});
   });
-})
+});
 
 module.exports = router;
