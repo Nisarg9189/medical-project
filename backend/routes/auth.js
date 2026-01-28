@@ -5,7 +5,7 @@ const Doctor = require("../models/doctor");
 const Patient = require("../models/patient");
 const bcrypt = require("bcrypt");
 const wrapAsync = require("../utils/wrapAsync");
-const ExpressError = require("../utils/expressError");
+
 
 async function hashPassword(password) {
   const saltRounds = 10;

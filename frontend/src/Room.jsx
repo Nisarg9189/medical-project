@@ -3,10 +3,12 @@ import { useSocket } from "./SocketProvider";
 import { useCallback } from "react";
 import ReactPlayer from "react-player";
 import peer from "./services/peer";
+import { useNavigate } from "react-router-dom";
 
 export default function Room() {
 
     const socket = useSocket();
+    const navigate = useNavigate();
 
     const [remoteSocketId, setRemoteSocketId] = useState(null);
     const [myStream, setMyStream] = useState(null);
@@ -48,9 +50,11 @@ export default function Room() {
     }, [socket]);
 
     const sendStreams = useCallback(() => {
+       
         for (const track of myStream.getTracks()) {
             peer.peer.addTrack(track, myStream);
         }
+        
     }, [myStream]);
 
     const handleCallAccepted = useCallback(({ from, ans }) => {
@@ -65,20 +69,32 @@ export default function Room() {
     }, [remoteSocketId]);
 
     useEffect(() => {
+
+        if(!peer.peer) return;
+
         peer.peer.addEventListener("negotiationneeded", handleNegoNeeded);
 
         return () => {
-            peer.peer.removeEventListener("negotiationneeded", handleNegoNeeded);
+            peer.peer?.removeEventListener("negotiationneeded", handleNegoNeeded);
         }
-    }, [socket, handleNegoNeeded]);
+    }, [handleNegoNeeded]);
 
-    useEffect(() => {
-        peer.peer.addEventListener("track", async (ev) => {
+    const handleTrack = useCallback(async (ev) => {
             const remoteStream = ev.streams;
             console.log("remoteStream : ", remoteStream);
             setRemoteStream(remoteStream[0]);
-        })
-    }, [socket, remoteStream]);
+    }, []);
+
+    useEffect(() => {
+
+        if(!peer.peer) return;
+
+        peer.peer.addEventListener("track", handleTrack);
+
+        return () => {
+            peer.peer?.removeEventListener("track", handleTrack);
+        }
+    }, [handleTrack]);
 
     const handleNegoIncoming = useCallback(async ({ from, offer }) => {
         const ans = await peer.getAnswer(offer);
@@ -88,6 +104,43 @@ export default function Room() {
     const handleNegoFinal = useCallback(async ({ ans }) => {
         await peer.setLocalDescription(ans);
     }, []);
+
+    const handleHangUpCalling = useCallback(() => {
+
+        if(myStream) {
+            for(const track of myStream.getTracks()) {
+                track.stop();
+            }
+            setMyStream(null);
+        }
+
+        if(remoteStream) {
+            for(const track of remoteStream.getTracks()) {
+                track.stop();
+            }
+            setRemoteStream(null);
+        }
+
+        if(myVideoRef.current) {
+            myVideoRef.current.srcObject = null;
+        }
+
+        if(remoteVideoRef.current) {
+            remoteVideoRef.current.srcObject = null;
+        }
+
+        if(peer.peer) {
+            for(const sender of peer.peer.getSenders()) {
+                peer.peer.removeTrack(sender);
+            }
+
+            peer.peer.close();
+            peer.peer = null;
+        }
+
+        navigate(-1);
+
+    }, [myStream, remoteStream]);
 
     useEffect(() => {
         socket.on("user:joined", handleUserJoined);
@@ -125,13 +178,15 @@ export default function Room() {
 
                 {/* Call Button */}
                 {remoteSocketId && (
-                    <div className="flex justify-center mb-6">
+                    <div className="flex justify-center mb-6 gap-2">
                         <button
                             onClick={handleCallUser}
                             className="bg-green-500 hover:bg-green-600 transition px-6 py-2 rounded-lg font-medium shadow-md"
                         >
                             📞 Call User
                         </button>
+
+                        <button onClick={handleHangUpCalling} className="bg-red-500 hover:bg-red-700 transition px-6 py-2 rounded-lg font-medium shadow-md">HangUp Call</button>
                     </div>
                 )}
 
@@ -154,6 +209,7 @@ export default function Room() {
                                 playsInline
                                 className="w-full h-full object-cover"
                             />
+                            
                         </div>
                     )}
 
