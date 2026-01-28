@@ -42,6 +42,7 @@ const sessionInfo = {
   secret: process.env.SECRET,
   resave: false,
   saveUninitialized: false,
+  proxy: true,
   cookie: {
     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -50,7 +51,11 @@ const sessionInfo = {
     sameSite: "none"
   },
 };
-
+app.use(cors({
+  // origin: "http://localhost:5173",
+  origin: process.env.FRONTEND_URL,
+  credentials: true
+}));   // allow React frontend
 app.use(session(sessionInfo));
 
 const emailToSocketIdMap = new Map();
@@ -100,13 +105,6 @@ async function main() {
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
-app.use(cors({
-  // origin: "http://localhost:5173",
-  origin: process.env.FRONTEND_URL,
-  credentials: true
-}));   // allow React frontend
-
 
 // Test Route
 app.get("/", (req, res) => {
