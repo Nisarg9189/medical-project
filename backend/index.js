@@ -7,7 +7,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: process.env.FRONTEND_URL,
   }
 });
 const cors = require("cors");
@@ -41,7 +41,6 @@ const sessionInfo = {
   secret: process.env.SECRET,
   resave: false,
   saveUninitialized: false,
-  Proxy: true,
   cookie: {
     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
