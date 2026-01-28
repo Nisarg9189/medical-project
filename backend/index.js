@@ -33,13 +33,15 @@ const store = MongoStore.create({
 
 store.on("error", () => {
   console.log("session store error");
-})
+});
 
+app.set("trust proxy", 1);
 const sessionInfo = {
   store,
   secret: process.env.SECRET,
   resave: false,
   saveUninitialized: false,
+  Proxy: true,
   cookie: {
     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -49,7 +51,6 @@ const sessionInfo = {
   },
 };
 
-app.set("trust proxy", 1);
 app.use(session(sessionInfo));
 
 const emailToSocketIdMap = new Map();
