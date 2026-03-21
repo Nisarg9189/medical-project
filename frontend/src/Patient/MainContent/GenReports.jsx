@@ -64,34 +64,65 @@ export default function GenReports() {
     }
 
     return (
-        <div className="max-w-xl mx-auto p-6 bg-white shadow-lg rounded-lg container mt-10">
-            <h1 className="text-2xl font-semibold mb-4 text-green-600">
-                Download Camp Report
-            </h1>
+        <div className="min-h-[calc(100vh-80px)] w-full flex items-center justify-center p-6 bg-gradient-to-br from-slate-50 via-sky-50 to-indigo-50 font-sans" style={{ perspective: '1200px' }}>
+            {/* Ambient Animations */}
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-400/20 rounded-full blur-[80px] mix-blend-screen animate-[blobBounce_10s_infinite_alternate]"></div>
+                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-sky-400/20 rounded-full blur-[80px] mix-blend-screen animate-[blobBounce_12s_infinite_alternate_reverse]"></div>
+            </div>
 
-            {/* Select input */}
-            <label className="block font-medium mb-1">Select Camp</label>
-            <select
-                className="w-full border rounded px-3 py-2 mb-4"
-                value={selectedCamp.campId}
-                onChange={selectedCampHandler}
-                name="campId"
+            <style>{`
+                @keyframes formEntrance {
+                    from { opacity: 0; transform: translateZ(-200px) rotateX(10deg); }
+                    to { opacity: 1; transform: translateZ(0) rotateX(0); }
+                }
+                @keyframes blobBounce {
+                    0% { transform: translateY(0) scale(1); }
+                    100% { transform: translateY(-30px) scale(1.1); }
+                }
+            `}</style>
+            
+            <div 
+                className="relative z-10 w-full max-w-xl bg-white/70 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] rounded-[2.5rem] p-8 sm:p-12 border border-white/60"
+                style={{ animation: 'formEntrance 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards' }}
             >
-                <option value="">-- Choose Camp --</option>
-                {camps.map((camp) => (
-                    <option key={camp._id} value={camp._id}>
-                        {camp.campId.CampType} - ({camp.campId.villageName} on {(new Date(camp.campId.Date)).toLocaleDateString()})
-                    </option>
-                ))}
-            </select>
+                <div className="mb-8 text-center flex flex-col items-center">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-sky-100 to-indigo-100 flex items-center justify-center mb-4 shadow-inner border border-white">
+                        <i className="fa-solid fa-file-pdf text-3xl text-sky-600 drop-shadow-sm"></i>
+                    </div>
+                    <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">Camp Reports</h1>
+                    <p className="text-slate-500 mt-2 font-medium">Download your medical history securely</p>
+                </div>
 
-            {/* Download Button */}
-            <button
-                onClick={downloadReport}
-                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-            >
-                Download PDF Report
-            </button>
+                <div className="space-y-6">
+                    <div className="space-y-2 focus-within:text-sky-600 transition-colors">
+                        <label className="text-sm font-semibold text-slate-700 transition-colors flex items-center gap-2">
+                            <i className="fa-solid fa-tent"></i> Select Medical Camp
+                        </label>
+                        <select
+                            className="w-full bg-slate-50 border border-slate-200 text-slate-700 font-medium rounded-xl py-3.5 px-4 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 focus:bg-white transition-all shadow-inner appearance-none relative"
+                            value={selectedCamp.campId}
+                            onChange={selectedCampHandler}
+                            name="campId"
+                            style={{ backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%2364748B"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>')`, backgroundPosition: 'right 1rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.25em' }}
+                        >
+                            <option value="">-- Choose Camp --</option>
+                            {camps.map((camp) => (
+                                <option key={camp._id} value={camp._id}>
+                                    {camp.campId.CampType} - ({camp.campId.villageName} on {(new Date(camp.campId.Date)).toLocaleDateString()})
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <button
+                        onClick={downloadReport}
+                        className="w-full py-4 mt-4 border border-transparent rounded-xl shadow-[0_5px_15px_rgba(14,165,233,0.3)] text-white font-bold bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 hover:shadow-[0_8px_20px_rgba(14,165,233,0.4)] transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2"
+                    >
+                        <i className="fa-solid fa-download"></i> Download PDF Report
+                    </button>
+                </div>
+            </div>
         </div>
     );
 }

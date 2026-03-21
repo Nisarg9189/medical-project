@@ -79,161 +79,151 @@ export default function BookAppointment() {
 
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-xl bg-white shadow-lg rounded-lg p-6 space-y-5 border-t-4 border-green-500"
-      >
-        <h2 className="text-2xl font-bold text-gray-800">Book Appointment</h2>
-        <p className="text-sm text-gray-500 mb-4">
-          Fill in the details to schedule your appointment
-        </p>
+        <div className="min-h-[calc(100vh-80px)] w-full flex items-center justify-center p-6 bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-50 font-sans" style={{ perspective: '1200px' }}>
+            {/* Ambient Animations */}
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-emerald-400/20 rounded-full blur-[80px] mix-blend-screen animate-[blobBounce_10s_infinite_alternate]"></div>
+                <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-teal-400/20 rounded-full blur-[80px] mix-blend-screen animate-[blobBounce_12s_infinite_alternate_reverse]"></div>
+            </div>
 
-        {/* Patient Name */}
-        {/* <div>
-          <label className="text-sm font-medium">Patient Name</label>
-          <input
-            type="text"
-            name="name"
-            placeholder="Enter your full name"
-            className="w-full mt-1 border p-2 rounded focus:ring focus:ring-green-300"
-            onChange={handleChange}
-            required
-          />
-        </div> */}
+            <style>{`
+                @keyframes formEntrance {
+                    from { opacity: 0; transform: translateZ(-200px) rotateX(10deg); }
+                    to { opacity: 1; transform: translateZ(0) rotateX(0); }
+                }
+                @keyframes blobBounce {
+                    0% { transform: translateY(0) scale(1); }
+                    100% { transform: translateY(-30px) scale(1.1); }
+                }
+            `}</style>
 
-        {/* Age */}
-        <div>
-          <label className="text-sm font-medium">Age</label>
-          <input
-            type="number"
-            name="age"
-            placeholder="Enter age"
-            className="w-full mt-1 border p-2 rounded focus:ring focus:ring-green-300"
-            onChange={handleChange}
-            required
-          />
+            <form
+                onSubmit={handleSubmit}
+                className="relative z-10 w-full max-w-2xl bg-white/70 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] rounded-[2.5rem] p-8 sm:p-12 border border-white/60 space-y-6"
+                style={{ animation: 'formEntrance 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards' }}
+            >
+                <div className="mb-8 text-center flex flex-col items-center">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center mb-4 shadow-inner border border-white">
+                        <i className="fa-solid fa-calendar-check text-3xl text-emerald-600 drop-shadow-sm"></i>
+                    </div>
+                    <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight">Book Appointment</h2>
+                    <p className="text-slate-500 mt-2 font-medium">Schedule your visit to a medical camp</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Age */}
+                    <div className="space-y-1.5 focus-within:text-emerald-600 transition-colors">
+                        <label className="text-sm font-semibold text-slate-700 transition-colors flex items-center gap-2">
+                             Age
+                        </label>
+                        <input
+                            type="number"
+                            name="age"
+                            placeholder="Enter age"
+                            value={form.age}
+                            className="w-full bg-slate-50 border border-slate-200 text-slate-700 font-medium rounded-xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 focus:bg-white transition-all shadow-inner"
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+
+                    {/* Gender */}
+                    <div className="space-y-1.5 focus-within:text-emerald-600 transition-colors">
+                        <label className="text-sm font-semibold text-slate-700 transition-colors flex items-center gap-2">
+                             Gender
+                        </label>
+                        <select
+                            name="gender"
+                            value={form.gender}
+                            className="w-full bg-slate-50 border border-slate-200 text-slate-700 font-medium rounded-xl py-3 flex-1 px-4 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 focus:bg-white transition-all shadow-inner appearance-none relative"
+                            onChange={handleChange}
+                            required
+                            style={{ backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%2364748B"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>')`, backgroundPosition: 'right 1rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.25em' }}
+                        >
+                            <option value="">Select gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    {/* Appointment Date */}
+                    <div className="space-y-1.5 focus-within:text-emerald-600 transition-colors">
+                        <label className="text-sm font-semibold text-slate-700 transition-colors flex items-center gap-2">
+                            Date
+                        </label>
+                        <input
+                            type="date"
+                            name="appointmentDate"
+                            value={form.appointmentDate}
+                            className="w-full bg-slate-50 border border-slate-200 text-slate-700 font-medium rounded-xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 focus:bg-white transition-all shadow-inner"
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+
+                    {/* Appointment Time */}
+                    <div className="space-y-1.5 focus-within:text-emerald-600 transition-colors">
+                        <label className="text-sm font-semibold text-slate-700 transition-colors flex items-center gap-2">
+                             Time
+                        </label>
+                        <input
+                            type="time"
+                            name="appointmentTime"
+                            value={form.appointmentTime}
+                            className="w-full bg-slate-50 border border-slate-200 text-slate-700 font-medium rounded-xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 focus:bg-white transition-all shadow-inner"
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                </div>
+
+                {/* Choose camp */}
+                <div className="space-y-1.5 focus-within:text-emerald-600 transition-colors">
+                    <label className="text-sm font-semibold text-slate-700 transition-colors flex items-center gap-2">
+                        <i className="fa-solid fa-tent"></i> Camp
+                    </label>
+                    <select
+                        name="camp"
+                        value={form.camp}
+                        className="w-full bg-slate-50 border border-slate-200 text-slate-700 font-medium rounded-xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 focus:bg-white transition-all shadow-inner appearance-none relative"
+                        onChange={handleChange}
+                        required
+                        style={{ backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%2364748B"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>')`, backgroundPosition: 'right 1rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.25em' }}
+                    >
+                        <option value="">Select camp</option>
+                        {camps.map((camp) => (
+                        <option key={camp._id} value={camp._id}>{(camp.CampType).toUpperCase()}</option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* Appoinment Type */}
+                <div className="space-y-1.5 focus-within:text-emerald-600 transition-colors">
+                    <label className="text-sm font-semibold text-slate-700 transition-colors flex items-center gap-2">
+                        <i className="fa-solid fa-video"></i> Appointment Type
+                    </label>
+                    <select
+                        name="doctor"
+                        className="w-full bg-slate-50 border border-slate-200 text-slate-700 font-medium rounded-xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 focus:bg-white transition-all shadow-inner appearance-none relative"
+                        onChange={handleChange}
+                        style={{ backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%2364748B"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>')`, backgroundPosition: 'right 1rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.25em' }}
+                        // required
+                    >
+                        <option value="">Choose a Type</option>
+                        <option value="offline">Offline</option>
+                        <option value="online">Online</option>
+                    </select>
+                </div>
+
+                {/* Button */}
+                <button
+                    type="submit"
+                    className="w-full py-4 mt-6 border border-transparent rounded-xl shadow-[0_5px_15px_rgba(16,185,129,0.3)] text-white font-bold bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 hover:shadow-[0_8px_20px_rgba(16,185,129,0.4)] transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2"
+                >
+                    <i className="fa-solid fa-check"></i> Book Appointment
+                </button>
+            </form>
         </div>
-
-        {/* Gender */}
-        <div>
-          <label className="text-sm font-medium">Gender</label>
-          <select
-            name="gender"
-            className="w-full mt-1 border p-2 rounded focus:ring focus:ring-green-300"
-            onChange={handleChange}
-            required
-          >
-            <option value="">Select gender</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-        {/* Choose camp */}
-        <div>
-          <label className="text-sm font-medium">Camp</label>
-          <select
-            name="camp"
-            className="w-full mt-1 border p-2 rounded focus:ring focus:ring-green-300"
-            onChange={handleChange}
-            required
-          >
-            <option value="">Select camp</option>
-            {camps.map((camp) => (
-              <option key={camp._id} value={camp._id}>{(camp.CampType).toUpperCase()}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Phone */}
-        {/* <div>
-          <label className="text-sm font-medium">Phone Number</label>
-          <input
-            type="tel"
-            name="phone"
-            placeholder="Enter phone number"
-            className="w-full mt-1 border p-2 rounded focus:ring focus:ring-green-300"
-            onChange={handleChange}
-            required
-          />
-        </div> */}
-
-        {/* Symptoms */}
-        {/* <div>
-          <label className="text-sm font-medium">Symptoms</label>
-          <textarea
-            name="symptoms"
-            placeholder="Describe your symptoms"
-            className="w-full mt-1 border p-2 rounded focus:ring focus:ring-green-300"
-            rows="3"
-            onChange={handleChange}
-            required
-          ></textarea>
-        </div> */}
-
-        {/* Appointment Date */}
-        <div>
-          <label className="text-sm font-medium">Appointment Date</label>
-          <input
-            type="date"
-            name="appointmentDate"
-            className="w-full mt-1 border p-2 rounded focus:ring focus:ring-green-300"
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        {/* Appointment Time */}
-        <div>
-          <label className="text-sm font-medium">Appointment Time</label>
-          <input
-            type="time"
-            name="appointmentTime"
-            className="w-full mt-1 border p-2 rounded focus:ring focus:ring-green-300"
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        {/* Doctor
-        <div>
-          <label className="text-sm font-medium">Select Doctor</label>
-          <select
-            name="doctor"
-            className="w-full mt-1 border p-2 rounded focus:ring focus:ring-green-300"
-            onChange={handleChange}
-            required
-          >
-            <option value="">Choose a doctor</option>
-            <option value="Dr. Sharma">Dr. Sharma</option>
-            <option value="Dr. Patel">Dr. Patel</option>
-            <option value="Dr. Mehta">Dr. Mehta</option>
-          </select>
-        </div> */}
-        {/* Doctor */}
-        <div>
-          <label className="text-sm font-medium">Select Appoinment Type</label>
-          <select
-            name="doctor"
-            className="w-full mt-1 border p-2 rounded focus:ring focus:ring-green-300"
-            onChange={handleChange}
-            // required
-          >
-            <option value="">Choose a Type</option>
-            <option value="offline">Offline</option>
-            <option value="online">Online</option>
-          </select>
-        </div>
-
-        {/* Button */}
-        <button
-          type="submit"
-          className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition"
-        >
-          Book Appointment
-        </button>
-      </form>
-    </div>
-  );
+    );
 }
