@@ -9,22 +9,56 @@ const API_URL = import.meta.env.VITE_API;
 export default function PatientsUpcomingCamps({ patientId }) {
     const { setLoading } = useLoading();
     let [camps, setCamps] = useState([]);
+    const [lastId, setLastId] = useState(null);
 
     const { error, setError } = useContext(ErrorContext);
 
     useEffect(() => {
         let fetchCamps = async () => {
-            let res = await fetch(`${API_URL}/utils/camps`, {
+            let res = await fetch(`${API_URL}/utils/camps?lastId=${lastId ? lastId : ""}`, {
                 method: "GET",
                 credentials: "include"
             });
             let dataBack = await res.json();
             // console.log(dataBack);
-            setCamps(dataBack);
+            setCamps((oldCamps) => {
+                if (dataBack.length === 0) return oldCamps;
+                const newCamps = dataBack.filter((camp) => !oldCamps.some((oldCamp) => oldCamp._id.toString() === camp._id.toString()));
+                return [...oldCamps, ...newCamps];
+            });
         }
 
         fetchCamps();
-    }, [patientId]);
+
+    }, [patientId, lastId]);
+
+    useEffect(() => {
+
+        const observer = new IntersectionObserver((params) => {
+            // console.log(params)
+            if (params[0].isIntersecting) {
+                observer.unobserve(lastCamp);
+                setLastId(camps[camps.length - 1]._id);
+                // console.log("last id : ", lastId);
+            }
+
+        }, {
+            threshold: 0.5
+        });
+
+        const lastCamp = document.querySelector(".camp-card:last-child");
+        // console.log("last camp : ", lastCamp);
+
+        if (!lastCamp) return;
+        observer.observe(lastCamp);
+
+        return () => {
+            if (lastCamp) {
+                observer.unobserve(lastCamp);
+            }
+            observer.disconnect();
+        }
+    }, [camps]);
 
     let handleRegister = async (id) => {
         console.log("Camp ID : ", id);
@@ -80,7 +114,7 @@ export default function PatientsUpcomingCamps({ patientId }) {
 
                     {camps.map((camp) => (
                         <div key={camp._id} className="min-w-fit w-full px-5 py-5 flex justify-between items-center rounded-lg 
-                   bg-white mt-5 border-s-4 border-green-500 shadow-md">
+                   bg-white mt-5 border-s-4 border-green-500 shadow-md camp-card">
                             <div>
                                 <p className="text-sm"><strong>{(camp.CampType).toUpperCase()}</strong></p>
                                 <p>Village: {camp.villageName} | Date: {new Date(camp.Date).toLocaleDateString()}</p>

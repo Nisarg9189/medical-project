@@ -1,7 +1,7 @@
 const express = require("express");
-const router = express.Router({mergeParams: true});
+const router = express.Router({ mergeParams: true });
 const Camp = require("../models/camp");
-const {isLoggedIn} = require("../utils/middleware");
+const { isLoggedIn } = require("../utils/middleware");
 const axios = require("axios");
 const wrapAsync = require("../utils/wrapAsync");
 const ExpressError = require("../utils/expressError");
@@ -17,7 +17,9 @@ router.get("/news", isLoggedIn, wrapAsync(async (req, res) => {
 }));
 
 router.get("/camps", isLoggedIn, wrapAsync(async (req, res) => {
-  let camps = await Camp.find().populate("AssignDoctor");
+  const { lastId } = req.query;
+  // console.log(lastId);
+  let camps = await Camp.find(lastId ? { _id: { $gt: lastId } } : {}).populate("AssignDoctor").limit(4);
   // console.log(camps);
   res.json(camps);
 }));

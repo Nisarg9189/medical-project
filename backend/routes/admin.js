@@ -1,9 +1,9 @@
 const express = require("express");
-const router = express.Router({mergeParams: true});
+const router = express.Router({ mergeParams: true });
 const Doctor = require("../models/doctor");
 const Camp = require("../models/camp");
 const bcrypt = require("bcrypt");
-const {isLoggedIn} = require("../utils/middleware");
+const { isLoggedIn } = require("../utils/middleware");
 const wrapAsync = require("../utils/wrapAsync");
 const ExpressError = require("../utils/expressError");
 
@@ -33,9 +33,11 @@ router.post("/:adminId/create/camp", isLoggedIn, wrapAsync(async (req, res) => {
 
 }));
 
-router.get("/:adminId/camps", isLoggedIn,  wrapAsync(async (req, res) => {
+router.get("/:adminId/camps", isLoggedIn, wrapAsync(async (req, res) => {
   let { adminId } = req.params;
-  let camps = await Camp.find({ adminId }).populate("AssignDoctor");
+  const { lastCampId } = req.query;
+  // let camps = await Camp.find({ adminId }).populate("AssignDoctor");
+  let camps = await Camp.find(lastCampId ? { _id: { $gt: lastCampId }, adminId: adminId } : { adminId: adminId }).populate("AssignDoctor").limit(4);
   res.json(camps);
 }));
 
@@ -78,7 +80,8 @@ router.get("/:adminId/card-details", isLoggedIn, wrapAsync(async (req, res) => {
   res.json({
     totalCamps,
     activeDoctors,
-    villagesCovered, ok:true});
+    villagesCovered, ok: true
+  });
 }));
 
 module.exports = router;

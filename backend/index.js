@@ -47,8 +47,8 @@ const sessionInfo = {
     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    secure: true,
-    sameSite: "none"
+    secure: false,
+    sameSite: "lax"
   },
 };
 app.use(cors({
@@ -65,7 +65,7 @@ io.on("connection", (socket) => {
   console.log("socket connected:", socket.id);
 
   socket.on("room:join", (data) => {
-    const {email, room, doctorId } = data;
+    const { email, room, doctorId } = data;
     emailToSocketIdMap.set(email, socket.id);
     socketIdToEmailMap.set(socket.id, email);
     io.to(room).emit("user:joined", { email, id: socket.id }); // notify others in the room
@@ -74,7 +74,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("call:user", ({ to, offer }) => {
-    io.to(to).emit("incoming:call", {from: socket.id, offer });
+    io.to(to).emit("incoming:call", { from: socket.id, offer });
   });
 
   socket.on("call:accepted", ({ to, ans }) => {
@@ -124,53 +124,53 @@ const stripMarkdownBold = (text) => {
 };
 
 app.post("/ask", async (req, res) => {
-    try {
-        const { question } = req.body;
+  try {
+    const { question } = req.body;
 
-        const response = await fetch(
-            "https://openrouter.ai/api/v1/chat/completions",
+    const response = await fetch(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "http://localhost:5173",
+          "X-Title": "Chatbot"
+        },
+        body: JSON.stringify({
+          model: "openrouter/auto",
+          // max_tokens: 100,
+          // temperature: 0.7,
+          messages: [
             {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-                    "Content-Type": "application/json",
-                    "HTTP-Referer": "http://localhost:5173",
-                    "X-Title": "Chatbot"
-                },
-                body: JSON.stringify({
-                    model: "openrouter/auto",
-                    // max_tokens: 100,
-                    // temperature: 0.7,
-                    messages: [
-                        {
-                            role: "system",
-                            content:
-                              "You are a medical assistant. " +
-                              "Give general health advice only. " +
-                              "Do not diagnose. " +
-                              "Always recommend consulting a doctor."
-                        },
-                        {
-                            role: "user",
-                            content: question
-                        }
-                    ]
-                })
+              role: "system",
+              content:
+                "You are a medical assistant. " +
+                "Give general health advice only. " +
+                "Do not diagnose. " +
+                "Always recommend consulting a doctor."
+            },
+            {
+              role: "user",
+              content: question
             }
-        );
+          ]
+        })
+      }
+    );
 
-        const data = await response.json();
-        console.log(data);
-        let answer = data?.choices?.[0]?.message?.content?.trim();
-        answer = stripMarkdownBold(answer);
-        res.json({
-            answer: answer || "Please consult a doctor for professional medical advice."
-        });
+    const data = await response.json();
+    console.log(data);
+    let answer = data?.choices?.[0]?.message?.content?.trim();
+    answer = stripMarkdownBold(answer);
+    res.json({
+      answer: answer || "Please consult a doctor for professional medical advice."
+    });
 
-    } catch (error) {
-      console.log(error);
-      res.status(500).json({ error: error.message });
-    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
 app.use((err, req, res, next) => {
