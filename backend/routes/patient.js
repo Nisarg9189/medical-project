@@ -1,22 +1,29 @@
 const express = require("express");
-const router = express.Router({mergeParams: true});
+const router = express.Router({ mergeParams: true });
 const Admin = require("../models/admin");
 const Doctor = require("../models/doctor");
 const Patient = require("../models/patient");
 const Appoinment = require("../models/appoinment");
 const Camp = require("../models/camp");
-const {isLoggedIn} = require("../utils/middleware");
+const { isLoggedIn } = require("../utils/middleware");
 const pdfDocument = require("pdfkit");
 const wrapAsync = require("../utils/wrapAsync");
 const ExpressError = require("../utils/expressError");
+const Sib = require('sib-api-v3-sdk');
+const client = Sib.ApiClient.instance;
+client.authentications['api-key'].apiKey = "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";
+const tranEmailApi = new Sib.TransactionalEmailsApi();
 
 router.post("/camps/:campId/patient/:patientId", isLoggedIn, wrapAsync(async (req, res) => {
   let { campId, patientId } = req.params;
-  let checkExisting = await Appoinment.findOne({ campId, patientId});
+  let checkExisting = await Appoinment.findOne({ campId, patientId });
   // console.log(checkExisting);
   if (checkExisting) {
     return res.json({ ok: false });
   }
+
+  const patient = await Patient.findById(patientId);
+  const email = patient.email;
 
   let camp = await Camp.findById(campId).populate("AssignDoctor");
   // console.log(camp);
@@ -26,12 +33,42 @@ router.post("/camps/:campId/patient/:patientId", isLoggedIn, wrapAsync(async (re
     patientId: patientId,
   });
   await appoinment.save();
+
+  try {
+    const sender = { email: 'nisargpatel460@gmail.com', name: 'ExpenseHub' };
+    const receivers = [{ email }];
+
+    const response = await tranEmailApi.sendTransacEmail({
+      sender,
+      to: receivers,
+      subject: 'Your Appoinment',
+      htmlContent: `
+    <p>Dear <b>${patient.name}</b>,</p>
+
+    <p>
+      Your <b>Appoinment on ${camp.Date}</b> has been
+      <b>successfully submitted.</b>.
+    </p>
+
+    <p>
+      Regards,<br>
+      <b>Rural Hospital</b>
+    </p>
+  `,
+    });
+  } catch (err) {
+    console.log(err.message);
+  }
+
   res.json({ message: "Registred Successfully", ok: true });
 }));
 
-router.post("/book-appontment", isLoggedIn,  wrapAsync(async (req, res) => {
+router.post("/book-appontment", isLoggedIn, wrapAsync(async (req, res) => {
   console.log(req.body);
   const { patientId, age, camp, appointmentDate, appointmentTime, gender } = req.body;
+
+  const patient = await Patient.findById(patientId);
+  const email = patient.email;
 
   let doctorId = await Camp.findById(camp).select("AssignDoctor");
   let appointment = new Appoinment({
@@ -44,7 +81,36 @@ router.post("/book-appontment", isLoggedIn,  wrapAsync(async (req, res) => {
     Age: age
   });
   await appointment.save();
-  res.json({ message: "Appointment booked successfully!", ok: true});
+
+  try {
+    const sender = { email: 'nisargpatel460@gmail.com', name: 'ExpenseHub' };
+    const receivers = [{ email }];
+
+    const response = await tranEmailApi.sendTransacEmail({
+      sender,
+      to: receivers,
+      subject: 'Your Appoinment',
+      htmlContent: `
+    <p>Dear <b>${patient.name}</b>,</p>
+
+    <p>
+      Your <b>Appoinment on ${appointmentDate}</b> has been
+      <b>successfully submitted.</b>.
+    </p>
+
+    <p>
+      Regards,<br>
+      <b>Rural Hospital</b>
+    </p>
+  `,
+    });
+
+
+  } catch (err) {
+    console.log(err.message);
+  }
+
+  res.json({ message: "Appointment booked successfully!", ok: true });
 }));
 
 router.get("/:patientId/report/:campId", isLoggedIn, wrapAsync(async (req, res) => {
@@ -54,7 +120,7 @@ router.get("/:patientId/report/:campId", isLoggedIn, wrapAsync(async (req, res) 
     .populate("doctorId")
     .populate("campId");
 
-    console.log(appointment);
+  console.log(appointment);
 
   if (!appointment) {
     return res.status(404).json({ message: "No completed appointment found for the selected camp." });
@@ -90,9 +156,9 @@ router.get("/:patientId/report/:campId", isLoggedIn, wrapAsync(async (req, res) 
 }));
 
 router.get("/camps/:patientId", isLoggedIn, wrapAsync(async (req, res) => {
-  let {patientId} = req.params;
+  let { patientId } = req.params;
 
-  let patientsCamps = await Appoinment.find({patientId, isDone: true}).populate("campId");
+  let patientsCamps = await Appoinment.find({ patientId, isDone: true }).populate("campId");
   console.log(patientsCamps);
   res.json(patientsCamps);
 }));
