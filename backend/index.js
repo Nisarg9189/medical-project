@@ -47,8 +47,8 @@ const sessionInfo = {
     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    secure: true,
-    sameSite: "none"
+    secure: false,
+    sameSite: "lax"
   },
 };
 app.use(cors({
@@ -97,8 +97,8 @@ main().then(() => {
 })
 
 async function main() {
-  // await mongoose.connect('mongodb://127.0.0.1:27017/ruralhospital');
-  await mongoose.connect(dbUrl);
+  await mongoose.connect('mongodb://127.0.0.1:27017/ruralhospital');
+  // await mongoose.connect(dbUrl);
 
   // use `await mongoose.connect('mongodb://user:password@127.0.0.1:27017/test');` if your database has auth enabled
 }
@@ -181,3 +181,5 @@ app.use((err, req, res, next) => {
 server.listen(8080, () => {
   console.log("Server running on port 8080");
 });
+
+module.exports = app;
