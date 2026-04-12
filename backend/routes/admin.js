@@ -57,6 +57,8 @@ router.post("/:adminId/create/doctor", isLoggedIn, wrapAsync(async (req, res) =>
 
   await newDoctor.save();
 
+  console.log("Doctor created!", newDoctor);
+
   res.json({ message: "Doctor created!", received: req.body, ok: true });
 
   // console.log(adminId);

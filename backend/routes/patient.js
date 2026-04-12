@@ -11,7 +11,7 @@ const wrapAsync = require("../utils/wrapAsync");
 const ExpressError = require("../utils/expressError");
 const Sib = require('sib-api-v3-sdk');
 const client = Sib.ApiClient.instance;
-client.authentications['api-key'].apiKey = process.env.EMAIL_API_KEY;
+client.authentications['api-key'].apiKey = "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";
 const tranEmailApi = new Sib.TransactionalEmailsApi();
 
 router.post("/camps/:campId/patient/:patientId", isLoggedIn, wrapAsync(async (req, res) => {

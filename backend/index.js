@@ -47,8 +47,8 @@ const sessionInfo = {
     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    secure: true,
-    sameSite: "none"
+    secure: false,
+    sameSite: "lax"
   },
 };
 app.use(cors({
@@ -181,3 +181,5 @@ app.use((err, req, res, next) => {
 server.listen(8080, () => {
   console.log("Server running on port 8080");
 });
+
+module.exports = app;

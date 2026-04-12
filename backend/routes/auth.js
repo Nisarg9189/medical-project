@@ -1,5 +1,5 @@
 const express = require("express");
-const router = express.Router({mergeParams: true});
+const router = express.Router({ mergeParams: true });
 const Admin = require("../models/admin");
 const Doctor = require("../models/doctor");
 const Patient = require("../models/patient");
@@ -18,7 +18,10 @@ async function verifyPassword(password, hashPassword) {
 
 router.post("/login", wrapAsync(async (req, res) => {
   let { email, password, role } = req.body;
-  console.log(req.body);
+
+  if (!email || !password || !role) {
+    return res.status(400).json({ message: "All fields are required", ok: false });
+  }
 
   let user;
   if (role === "admin") {
@@ -32,17 +35,17 @@ router.post("/login", wrapAsync(async (req, res) => {
 
   if (user) {
     const isValid = await verifyPassword(password, user.password);
-    if(!isValid) {
+    if (!isValid) {
       return res.status(401).json({ message: "Invalid credentials", ok: false });
     }
     req.session.user = {
-    _id: user._id,
-    name: user.name,
-    email: user.email,
-    role: role
-  };
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: role
+    };
     // console.log("User logged in:", req.session.user);
-    return res.status(200).json({ message: "Login successful", user, ok: true});
+    return res.status(200).json({ message: "Login successful", user, ok: true });
   } else {
     return res.status(401).json({ message: "Invalid credentials", ok: false });
   }
@@ -52,7 +55,12 @@ router.post("/login", wrapAsync(async (req, res) => {
 // signup
 router.post("/signup", wrapAsync(async (req, res) => {
   let { fullName, email, password, role } = req.body;
-  // console.log(req.body);
+
+  if (!fullName || email || password || role) {
+    res.status(400).json({ message: "All fields are required", ok: false });
+    return;
+  }
+
   let existingUser = await Admin.findOne({ email });
   if (existingUser) {
     res.status(400).json({ message: "User already exists", ok: false });
@@ -61,7 +69,7 @@ router.post("/signup", wrapAsync(async (req, res) => {
   password = await hashPassword(password);
   if (role === "admin") {
     let newAdmin = new Admin({
-      name :fullName,
+      name: fullName,
       email: email,
       password: password
     });
@@ -74,7 +82,7 @@ router.post("/signup", wrapAsync(async (req, res) => {
     }
     res.json({ message: "Signup successful", user: newAdmin, ok: true });
     return;
-  } else if( role === "patient") {
+  } else if (role === "patient") {
     let newPatient = new Patient({
       name: fullName,
       email,
@@ -93,15 +101,15 @@ router.post("/signup", wrapAsync(async (req, res) => {
   }
 }));
 
-router.get("/logout",(req, res) => {
+router.get("/logout", (req, res) => {
   req.session.destroy((err) => {
-    if(err) {
+    if (err) {
       // console.log("Error destroying session:", err);
       return res.json({ ok: false, message: "Error logging out" });
     }
     console.log("Session destroyed successfully");
     res.clearCookie("connect.sid");
-    return res.json({ message: "Logged out successfully", ok: true});
+    return res.json({ message: "Logged out successfully", ok: true });
   });
 });
 
