@@ -88,8 +88,17 @@ router.get("/:doctorId/details", isLoggedIn, wrapAsync(async (req, res) => {
 // ─── Download Completed Appointments as Excel ───────────────────────────────
 router.get("/:doctorId/appointments/download", isLoggedIn, wrapAsync(async (req, res) => {
   let { doctorId } = req.params;
+  let { startDate, endDate } = req.query;          // ← NEW
 
-  let completedAppointments = await Appoinment.find({ doctorId, isDone: true })
+  // Build date filter only when params are provided
+  let dateFilter = {};                              // ← NEW
+  if (startDate || endDate) {                       // ← NEW
+    dateFilter.date = {};                           // ← NEW
+    if (startDate) dateFilter.date.$gte = new Date(startDate);          // ← NEW
+    if (endDate)   dateFilter.date.$lte = new Date(new Date(endDate).setHours(23, 59, 59, 999)); // ← NEW
+  }                                                 // ← NEW
+
+  let completedAppointments = await Appoinment.find({ doctorId, isDone: true, ...dateFilter }) // ← changed
     .populate("patientId")
     .populate("doctorId")
     .populate("campId");
