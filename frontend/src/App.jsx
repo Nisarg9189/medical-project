@@ -11,6 +11,7 @@ import AuthForm from "./auth/AuthForm"
 import DoctorHeader from "./Doctor/DoctorHeader/DoctorHeader"
 import PatientHeader from "./Patient/Header/PatientHeader"
 import GenReports from "./Patient/MainContent/GenReports"
+import Payment from "./Patient/PatientForm/Payment"
 import GlobalLoader from "./GlobalLoader";
 import Room from "./Room"
 // Simple 404 page
@@ -55,6 +56,7 @@ function App() {
             </>
           } />
           <Route path="/:patientId/book" element={< BookAppointment />} />
+          <Route path="/:patientId/payment" element={< Payment />} />
           <Route path="/:patientId/reports" element={< GenReports />} />
 
           <Route path="/room/:roomId" element={< Room />} />

@@ -14,7 +14,7 @@ const io = new Server(server, {
 const cors = require("cors");
 const mongoose = require("mongoose");
 const session = require("express-session");
-const MongoStore = require("connect-mongo");
+const { MongoStore } = require("connect-mongo");
 
 const adminRoutes = require("./routes/admin.js");
 const doctorRoutes = require("./routes/doctor.js");

@@ -20,7 +20,7 @@ export default function GenReports() {
                 credentials: "include"
             });
             let data = await res.json();
-            if(data.ok && !data.ok) {
+            if(data.ok === false) {
                 alert("Unauthorized Access");
                 return;
             }
@@ -38,7 +38,7 @@ export default function GenReports() {
 
     let downloadReport = async () => {
         if(!selectedCamp.campId) {
-            alert("Please select a camp to download the report.");
+            alert("Please select an appointment to download the report.");
             return;
         }
 
@@ -53,7 +53,7 @@ export default function GenReports() {
             let url = window.URL.createObjectURL(new Blob([blob]));
             let link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `Camp_Report_${selectedCamp.campId}.pdf`);
+            link.setAttribute('download', `Medical_Report_${selectedCamp.campId}.pdf`);
             document.body.appendChild(link);
             link.click();
             link.parentNode.removeChild(link);
@@ -90,14 +90,14 @@ export default function GenReports() {
                     <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-sky-100 to-indigo-100 flex items-center justify-center mb-4 shadow-inner border border-white">
                         <i className="fa-solid fa-file-pdf text-3xl text-sky-600 drop-shadow-sm"></i>
                     </div>
-                    <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">Camp Reports</h1>
+                    <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">Medical Reports</h1>
                     <p className="text-slate-500 mt-2 font-medium">Download your medical history securely</p>
                 </div>
 
                 <div className="space-y-6">
                     <div className="space-y-2 focus-within:text-sky-600 transition-colors">
                         <label className="text-sm font-semibold text-slate-700 transition-colors flex items-center gap-2">
-                            <i className="fa-solid fa-tent"></i> Select Medical Camp
+                            <i className="fa-solid fa-notes-medical"></i> Select Finalized Appointment
                         </label>
                         <select
                             className="w-full bg-slate-50 border border-slate-200 text-slate-700 font-medium rounded-xl py-3.5 px-4 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 focus:bg-white transition-all shadow-inner appearance-none relative"
@@ -106,10 +106,10 @@ export default function GenReports() {
                             name="campId"
                             style={{ backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%2364748B"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>')`, backgroundPosition: 'right 1rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.25em' }}
                         >
-                            <option value="">-- Choose Camp --</option>
-                            {camps.map((camp) => (
-                                <option key={camp._id} value={camp._id}>
-                                    {camp.campId.CampType} - ({camp.campId.villageName} on {(new Date(camp.campId.Date)).toLocaleDateString()})
+                            <option value="">-- Choose Appointment --</option>
+                            {camps.map((appt) => (
+                                <option key={appt._id} value={appt._id}>
+                                    {appt.campId ? `Camp: ${appt.campId.CampType} - (${appt.campId.villageName} on ${new Date(appt.campId.Date).toLocaleDateString()})` : `Direct Visit: ${new Date(appt.date).toLocaleDateString()}`}
                                 </option>
                             ))}
                         </select>

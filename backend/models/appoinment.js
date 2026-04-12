@@ -25,12 +25,11 @@ let appoinmentSchema = new mongoose.Schema({
     campId: {
         type: mongoose.Types.ObjectId,
         ref: "Camp",
-        required: true
     },
 
     date: {
         type: Date,
-        default: Date.now()
+        default: Date.now
     },
 
     time: {

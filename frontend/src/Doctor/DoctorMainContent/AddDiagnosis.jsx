@@ -36,7 +36,7 @@ export default function AddDiagnosis() {
         credentials: "include"
       });
       let data = await response.json();
-      if(data.ok && !data.ok) {
+      if(data.ok === false) {
         alert("Error");
         return;
       }

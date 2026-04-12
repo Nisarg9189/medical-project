@@ -45,16 +45,22 @@ export default function AuthForm() {
       });
       if (!data.ok) {
         let err = await data.json();
-        setError("Server Error!");
+        setError(err.message || err.error || "Server Error!");
         return;
       }
       let res = await data.json();
-      console.log(res);
+      console.log("Auth response:", res);
       if (!res.ok) {
-        setError("Invalid User!");
+        setError(res.message || "Invalid User!");
         return;
       }
+      
       // Navigate based on role after login/signup
+      if (!res.user || !res.user.role) {
+        setError("Invalid response format from server.");
+        return;
+      }
+
       if (res.user.role === "admin") {
         navigate(`/${res.user._id}/admin`);
       } else if (res.user.role === "doctor") {
@@ -62,7 +68,7 @@ export default function AuthForm() {
       } else if (res.user.role === "patient") {
         navigate(`/${res.user._id}/patient`);
       } else {
-        setError("Invalid User!");
+        setError("Invalid Role Format!");
       }
     } catch (error) {
       // console.error("Error during authentication:", error);

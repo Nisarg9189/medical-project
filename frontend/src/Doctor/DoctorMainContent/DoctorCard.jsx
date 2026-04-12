@@ -17,7 +17,7 @@ export default function DoctorCard({ doctorId }) {
                 credentials: "include"
             });
             let data = await response.json();
-            if(data.ok && !data.ok) {
+            if(data.ok === false) {
                 alert("Unauthorized Access");
                 return;
             }

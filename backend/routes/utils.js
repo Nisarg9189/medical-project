@@ -24,4 +24,10 @@ router.get("/camps", isLoggedIn, wrapAsync(async (req, res) => {
   res.json(camps);
 }));
 
+router.get("/doctors", isLoggedIn, wrapAsync(async (req, res) => {
+  const Doctor = require("../models/doctor");
+  let doctors = await Doctor.find({});
+  res.json(doctors);
+}));
+
 module.exports = router;

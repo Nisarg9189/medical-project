@@ -117,7 +117,7 @@ export default function PatientsUpcomingCamps({ patientId }) {
 
             <PatientJoinMeet patientId={patientId} />
 
-            <div id="cardList" className="mt-2 overflow-y-auto h-[450px] w-full space-y-4 pr-2">
+            <div id="cardList" className="mt-2 overflow-y-auto max-h-[450px] w-full space-y-4 pr-2">
                 {camps.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-slate-400">
                         <i className="fa-solid fa-tent text-4xl mb-3 opacity-50"></i>
@@ -136,12 +136,12 @@ export default function PatientsUpcomingCamps({ patientId }) {
                                     <span className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 border border-slate-200 shadow-inner">
                                         <i className="fa-solid fa-hand-holding-medical"></i>
                                     </span>
-                                    {(camp.CampType).toUpperCase()}
+                                    {(camp.CampType || "Unknown").toUpperCase()}
                                 </p>
                                 <div className="flex flex-wrap gap-3 mt-3 text-sm font-medium text-slate-500 md:ml-[3.25rem]">
                                     <p className="flex items-center gap-1.5 bg-sky-50 text-sky-600 px-3 py-1 rounded-full"><i className="fa-solid fa-location-dot text-sky-400"></i> {camp.villageName}</p>
                                     <p className="flex items-center gap-1.5 bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full"><i className="fa-regular fa-calendar text-indigo-400"></i> {new Date(camp.Date).toLocaleDateString()}</p>
-                                    <p className="flex items-center gap-1.5 bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full"><i className="fa-solid fa-user-doctor text-emerald-400"></i> Dr. {camp.AssignDoctor.name}</p>
+                                    <p className="flex items-center gap-1.5 bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full"><i className="fa-solid fa-user-doctor text-emerald-400"></i> Dr. {camp.AssignDoctor?.name || "Unassigned"}</p>
                                 </div>
                             </div>
 

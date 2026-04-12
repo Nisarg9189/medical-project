@@ -38,6 +38,21 @@ let docotrSchema = new mongoose.Schema({
     specialization: {
         type: String,
         default: ""
+    },
+
+    location: {
+        type: String,
+        default: ""
+    },
+
+    phone: {
+        type: String,
+        default: ""
+    },
+
+    appointmentFee: {
+        type: Number,
+        default: 0
     }
 
 });

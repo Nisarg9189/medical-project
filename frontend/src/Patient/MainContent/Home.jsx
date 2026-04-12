@@ -1,8 +1,9 @@
 import PatientHeader from "../Header/PatientHeader";
 import PatientsUpcomingCamps from "./PatientsUpcomingCamps";
+import PatientAppointments from "./PatientAppointments";
 import ManageSchedule from "./ManageSchedule";
-import { useParams } from "react-router-dom";
-import { useState } from "react";
+import { useParams, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { useLoading } from "../../LoadingContext";
 
 const API_URL = import.meta.env.VITE_API;
@@ -13,6 +14,18 @@ export default function MainContent() {
     // console.log("Patient ID in Home:", patientId);
     const [question, setQuestion] = useState("");
     const [answer, setAnswer] = useState("");
+    const location = useLocation();
+    const [showSuccess, setShowSuccess] = useState(false);
+
+    useEffect(() => {
+        if (location.state?.bookingSuccess) {
+            setShowSuccess(true);
+            const timer = setTimeout(() => {
+                setShowSuccess(false);
+            }, 6000);
+            return () => clearTimeout(timer);
+        }
+    }, [location.state]);
 
     const handleAskAI = async (e) => {
         e.preventDefault();
@@ -45,7 +58,7 @@ export default function MainContent() {
 
 
     return (
-        <div className="min-h-[calc(100vh-80px)] w-full relative overflow-hidden bg-gradient-to-br from-slate-50 via-sky-50 to-indigo-50 font-sans pb-10">
+        <div className="min-h-[calc(100vh-80px)] w-full relative overflow-x-hidden bg-gradient-to-br from-slate-50 via-sky-50 to-indigo-50 font-sans pb-10">
             {/* Ambient Background Animations */}
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-200/40 rounded-full blur-[100px] mix-blend-multiply animate-[blobBounce_15s_infinite_alternate]"></div>
@@ -54,6 +67,13 @@ export default function MainContent() {
             </div>
 
             <div className="relative z-10 max-w-[1600px] w-full mx-auto px-6 py-8 sm:px-10 sm:py-12">
+                {showSuccess && (
+                     <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-emerald-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-4 animate-[slideDownFade_0.4s_ease-out]">
+                         <span className="font-bold">Appointment booked successfully!</span>
+                         <button onClick={() => setShowSuccess(false)} className="text-white hover:text-emerald-200 transition">✕</button>
+                     </div>
+                )}
+                
                 <div className="mb-10 animate-[slideDownFade_0.8s_ease-out_forwards]">
                     <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent tracking-tight drop-shadow-sm">
                         Welcome, <span className="text-indigo-600">Patient</span>
@@ -110,7 +130,7 @@ export default function MainContent() {
                 <div className="flex flex-col xl:flex-row gap-8 xl:gap-10">
                     {/* Left: Manage Schedule */}
                     <div className="w-full xl:w-2/5 animate-[slideUpFade_0.8s_ease-out_forwards_0.4s] opacity-0" style={{ animationFillMode: 'forwards' }}>
-                        <div className="bg-white/70 backdrop-blur-2xl shadow-[0_15px_40px_rgba(0,0,0,0.08)] rounded-[2rem] border border-white/80 p-8 h-full">
+                        <div className="bg-white/70 backdrop-blur-2xl shadow-[0_15px_40px_rgba(0,0,0,0.08)] rounded-[2rem] border border-white/80 p-8">
                             <h2 className="text-2xl font-extrabold text-slate-800 tracking-tight flex items-center gap-3 mb-8 pb-4 border-b border-slate-200/60">
                                 <span className="bg-sky-100 text-sky-600 w-12 h-12 rounded-xl flex items-center justify-center shadow-inner">
                                     <i className="fa-solid fa-calendar-check"></i>
@@ -119,11 +139,20 @@ export default function MainContent() {
                             </h2>
                             <ManageSchedule patientId={patientId} />
                         </div>
+                        <div className="bg-white/70 backdrop-blur-2xl shadow-[0_15px_40px_rgba(0,0,0,0.08)] rounded-[2rem] border border-white/80 p-8 mt-8">
+                            <h2 className="text-2xl font-extrabold text-slate-800 tracking-tight flex items-center gap-3 mb-4 pb-4 border-b border-slate-200/60">
+                                <span className="bg-teal-100 text-teal-600 w-12 h-12 rounded-xl flex items-center justify-center shadow-inner">
+                                    <i className="fa-solid fa-list-check"></i>
+                                </span>
+                                My Registered Appointments
+                            </h2>
+                            <PatientAppointments patientId={patientId} />
+                        </div>
                     </div>
 
                     {/* Right: Upcoming Camps */}
                     <div className="w-full xl:w-3/5 animate-[slideUpFade_0.8s_ease-out_forwards_0.6s] opacity-0" style={{ animationFillMode: 'forwards' }}>
-                        <div className="bg-white/70 backdrop-blur-2xl shadow-[0_15px_40px_rgba(0,0,0,0.08)] rounded-[2rem] border border-white/80 p-8 h-full">
+                        <div className="bg-white/70 backdrop-blur-2xl shadow-[0_15px_40px_rgba(0,0,0,0.08)] rounded-[2rem] border border-white/80 p-8">
                             <h2 className="text-2xl font-extrabold text-slate-800 tracking-tight flex items-center gap-3 mb-4 pb-4 border-b border-slate-200/60">
                                 <span className="bg-emerald-100 text-emerald-600 w-12 h-12 rounded-xl flex items-center justify-center shadow-inner">
                                     <i className="fa-solid fa-tent"></i>

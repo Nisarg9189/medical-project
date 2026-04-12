@@ -14,6 +14,14 @@ const client = Sib.ApiClient.instance;
 client.authentications['api-key'].apiKey = "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";
 const tranEmailApi = new Sib.TransactionalEmailsApi();
 
+router.get("/:patientId/appointments", isLoggedIn, wrapAsync(async (req, res) => {
+  let { patientId } = req.params;
+  let appointments = await Appoinment.find({ patientId, isDone: false })
+    .populate("doctorId")
+    .populate("campId");
+  res.json(appointments);
+}));
+
 router.post("/camps/:campId/patient/:patientId", isLoggedIn, wrapAsync(async (req, res) => {
   let { campId, patientId } = req.params;
   let checkExisting = await Appoinment.findOne({ campId, patientId });
@@ -65,16 +73,25 @@ router.post("/camps/:campId/patient/:patientId", isLoggedIn, wrapAsync(async (re
 
 router.post("/book-appontment", isLoggedIn, wrapAsync(async (req, res) => {
   console.log(req.body);
-  const { patientId, age, camp, appointmentDate, appointmentTime, gender } = req.body;
+  const { patientId, age, camp, appointmentDate, appointmentTime, gender, doctor } = req.body;
 
   const patient = await Patient.findById(patientId);
   const email = patient.email;
 
-  let doctorId = await Camp.findById(camp).select("AssignDoctor");
+  let assignedDoctorId;
+  if(camp) {
+    let campDoc = await Camp.findById(camp).select("AssignDoctor");
+    assignedDoctorId = campDoc.AssignDoctor;
+  } else if (doctor) {
+    assignedDoctorId = doctor;
+  } else {
+    return res.status(400).json({ message: "Must provide either camp or doctor.", ok: false });
+  }
+
   let appointment = new Appoinment({
     patientId: patientId,
-    doctorId: doctorId.AssignDoctor,
-    campId: camp,
+    doctorId: assignedDoctorId,
+    campId: camp || null,
     date: appointmentDate,
     time: appointmentTime,
     Gender: gender,
@@ -135,13 +152,20 @@ router.get("/:patientId/report/:campId", isLoggedIn, wrapAsync(async (req, res) 
 
   doc.pipe(res);
 
-  doc.fontSize(20).text(`Camp Report`, { align: 'center', underline: true });
+  doc.fontSize(20).text(`Report`, { align: 'center', underline: true });
   doc.moveDown();
 
   doc.fontSize(12).text(`Patient ID: ${patientId}`);
-  doc.text(`Camp: ${appointment.campId.CampType} at ${appointment.campId.villageName}`);
-  doc.text(`Date: ${new Date(appointment.campId.Date).toLocaleDateString()}`);
-  doc.text(`Doctor: ${appointment.doctorId.name} (${appointment.doctorId.specialization})`);
+  if (appointment.campId) {
+      doc.text(`Camp: ${appointment.campId.CampType} at ${appointment.campId.villageName}`);
+      doc.text(`Date: ${new Date(appointment.campId.Date).toLocaleDateString()}`);
+  } else {
+      doc.text(`Visit Type: Direct Consultation`);
+      doc.text(`Date: ${appointment.date ? new Date(appointment.date).toLocaleDateString() : 'N/A'}`);
+  }
+  if (appointment.doctorId) {
+      doc.text(`Doctor: ${appointment.doctorId.name} (${appointment.doctorId.specialization})`);
+  }
   doc.moveDown();
 
   doc.text(`Symptoms: ${appointment.symptoms}`);

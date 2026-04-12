@@ -15,6 +15,35 @@ router.get("/:doctorId/patients", isLoggedIn, wrapAsync(async (req, res) => {
   res.json(appointments);
 }));
 
+router.get("/:doctorId/patients/paginated", isLoggedIn, wrapAsync(async (req, res) => {
+  let { doctorId } = req.params;
+  let page = parseInt(req.query.page) || 1;
+  let limit = parseInt(req.query.limit) || 4;
+  let skip = (page - 1) * limit;
+
+  let filter = { doctorId, isDone: false };
+  if (req.query.date && req.query.date.trim() !== "") {
+    let dayStart = new Date(`${req.query.date}T00:00:00.000Z`);
+    let dayEnd = new Date(`${req.query.date}T23:59:59.999Z`);
+    filter.date = { $gte: dayStart, $lte: dayEnd };
+  }
+
+  let totalCount = await Appoinment.countDocuments(filter);
+  let appointments = await Appoinment.find(filter)
+    .populate("patientId")
+    .populate("campId")
+    .sort({ date: 1 })
+    .skip(skip)
+    .limit(limit);
+
+  res.json({
+    appointments,
+    currentPage: page,
+    totalPages: Math.ceil(totalCount / limit),
+    totalCount
+  });
+}));
+
 router.get("/:doctorId/appointments", isLoggedIn, wrapAsync(async (req, res) => {
   let { doctorId } = req.params;
 
@@ -35,18 +64,30 @@ router.get("/:doctorId/details", isLoggedIn, wrapAsync(async (req, res) => {
   res.json(doctor);
 }));
 
+router.put("/:doctorId/update-profile", isLoggedIn, wrapAsync(async (req, res) => {
+  let { doctorId } = req.params;
+  let { specialization, location, phone, appointmentFee } = req.body;
+  let updatedDoctor = await Doctor.findByIdAndUpdate(doctorId, {
+    specialization,
+    location,
+    phone,
+    appointmentFee
+  }, { new: true });
+  res.json({ message: "Profile updated successfully!", doctor: updatedDoctor, ok: true });
+}));
+
 // ─── Download Completed Appointments as Excel ───────────────────────────────
 router.get("/:doctorId/appointments/download", isLoggedIn, wrapAsync(async (req, res) => {
   let { doctorId } = req.params;
   let { startDate, endDate } = req.query;          // ← NEW
 
   // Build date filter only when params are provided
-  let dateFilter = {};                              // ← NEW
-  if (startDate || endDate) {                       // ← NEW
-    dateFilter.date = {};                           // ← NEW
-    if (startDate) dateFilter.date.$gte = new Date(startDate);          // ← NEW
-    if (endDate)   dateFilter.date.$lte = new Date(new Date(endDate).setHours(23, 59, 59, 999)); // ← NEW
-  }                                                 // ← NEW
+  let dateFilter = {};
+  if (startDate || endDate) {
+    dateFilter.date = {};
+    if (startDate) dateFilter.date.$gte = new Date(`${startDate}T00:00:00.000Z`);
+    if (endDate)   dateFilter.date.$lte = new Date(`${endDate}T23:59:59.999Z`);
+  }
 
   let completedAppointments = await Appoinment.find({ doctorId, isDone: true, ...dateFilter }) // ← changed
     .populate("patientId")

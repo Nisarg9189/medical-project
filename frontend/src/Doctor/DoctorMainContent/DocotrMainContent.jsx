@@ -11,8 +11,10 @@ export default function DocotrMainContent() {
     let [doctorDetails, setDoctorDetails] = useState(null);
     let [downloading, setDownloading] = useState(false);
     let [showDatePicker, setShowDatePicker] = useState(false);
-    let [startDate, setStartDate]           = useState("");
-    let [endDate, setEndDate]               = useState("");
+    let [startDate, setStartDate] = useState("");
+    let [endDate, setEndDate] = useState("");
+    let [showEditProfile, setShowEditProfile] = useState(false);
+    let [profileForm, setProfileForm] = useState({ specialization: "", location: "", phone: "", appointmentFee: 0 });
 
     useEffect(() => {
         let fetchDoctorDetails = async () => {
@@ -21,22 +23,59 @@ export default function DocotrMainContent() {
                 credentials: "include"
             });
             let data = await res.json();
-            if (data.ok && !data.ok) {
+            if (data.ok === false) {
                 alert("Unauthorized Access");
                 return;
             }
             setDoctorDetails(data);
+            setProfileForm({
+                specialization: data.specialization || "",
+                location: data.location || "",
+                phone: data.phone || "",
+                appointmentFee: data.appointmentFee || 0
+            });
         };
         fetchDoctorDetails();
     }, [doctorId]);
+
+
+    const handleUpdateProfile = async (e) => {
+        e.preventDefault();
+        try {
+            let res = await fetch(`${API_URL}/doctors/${doctorId}/update-profile`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(profileForm),
+                credentials: "include"
+            });
+            let data = await res.json();
+            if (data.ok) {
+                alert("Profile updated successfully");
+                setDoctorDetails(data.doctor);
+                setShowEditProfile(false);
+            } else {
+                alert("Failed to update profile");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Error updating profile");
+        }
+    };
 
     // ── Download completed appointments as Excel ──────────────────────────────
     const handleDownloadExcel = async () => {
         try {
             setDownloading(true);
+            let finalStartDate = startDate;
+            let finalEndDate = endDate;
+            if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+                finalStartDate = endDate;
+                finalEndDate = startDate;
+            }
+
             const params = new URLSearchParams();
-            if (startDate) params.set("startDate", startDate);
-            if (endDate)   params.set("endDate",   endDate);
+            if (finalStartDate) params.set("startDate", finalStartDate);
+            if (finalEndDate) params.set("endDate", finalEndDate);
             const query = params.toString() ? `?${params.toString()}` : "";
             const res = await fetch(`${API_URL}/doctors/${doctorId}/appointments/download${query}`, {
                 method: "GET",
@@ -70,6 +109,7 @@ export default function DocotrMainContent() {
             alert("Something went wrong while downloading.");
         } finally {
             setDownloading(false);
+            setShowDatePicker(false);
         }
     };
 
@@ -82,6 +122,40 @@ export default function DocotrMainContent() {
                 <div className="absolute top-[20%] right-[20%] w-[400px] h-[400px] bg-sky-200/30 rounded-full blur-[90px] mix-blend-multiply animate-[blobBounce_20s_infinite_alternate]"></div>
             </div>
 
+
+            {/* Edit Profile Modal */}
+            {showEditProfile && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-[formEntrance_0.3s_ease-out_forwards]">
+                    <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
+                        <button onClick={() => setShowEditProfile(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition">
+                            ✕
+                        </button>
+                        <h2 className="text-2xl font-bold mb-4 text-emerald-600">Edit Profile</h2>
+                        <form onSubmit={handleUpdateProfile} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-600 mb-1">Specialization</label>
+                                <input type="text" value={profileForm.specialization} onChange={(e) => setProfileForm({ ...profileForm, specialization: e.target.value })} className="w-full px-3 py-2 border rounded-xl" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-600 mb-1">Location</label>
+                                <input type="text" value={profileForm.location} onChange={(e) => setProfileForm({ ...profileForm, location: e.target.value })} className="w-full px-3 py-2 border rounded-xl" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-600 mb-1">Phone Number</label>
+                                <input type="text" value={profileForm.phone} onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })} className="w-full px-3 py-2 border rounded-xl" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-600 mb-1">Base Appointment Fee (₹)</label>
+                                <input type="number" value={profileForm.appointmentFee} onChange={(e) => setProfileForm({ ...profileForm, appointmentFee: e.target.value })} className="w-full px-3 py-2 border rounded-xl" />
+                            </div>
+                            <div className="pt-2">
+                                <button type="submit" className="w-full py-2 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
             <div className="relative z-10 max-w-[1600px] w-full mx-auto px-6 py-8 sm:px-10 sm:py-12">
                 {/* Heading + Download Button Row */}
                 <div className="mb-10 animate-[slideDownFade_0.8s_ease-out_forwards] flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
@@ -92,6 +166,13 @@ export default function DocotrMainContent() {
                         <p className="text-lg text-slate-500 font-medium mt-2 flex items-center gap-2">
                             <i className="fa-regular fa-calendar-check text-emerald-500"></i> Today's Schedule — {new Date().toLocaleDateString()}
                         </p>
+
+                        <div className="flex items-center gap-3 mt-4">
+                            <button onClick={() => setShowEditProfile(true)} className="px-4 py-1.5 text-sm font-semibold bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition">
+                                Edit Profile
+                            </button>
+                        </div>
+
                     </div>
 
                     {/* ── Excel Download Button ── */}
@@ -129,62 +210,71 @@ export default function DocotrMainContent() {
                                     </svg>
                                     <span>Download Completed</span>
                                     <svg xmlns="http://www.w3.org/2000/svg" className={`w-4 h-4 flex-shrink-0 transition-transform duration-300 ${showDatePicker ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M7 10l5 5 5-5z"/>
+                                        <path d="M7 10l5 5 5-5z" />
                                     </svg>
                                 </>
                             )}
                         </button>
 
                         {showDatePicker && (
-                            <div className="absolute right-0 mt-2 w-72 bg-white/90 backdrop-blur-xl border border-emerald-100 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] p-5 z-50 animate-[slideDownFade_0.2s_ease-out_forwards]">
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Filter by Date Range</p>
-                                <div className="flex flex-col gap-3">
-                                    <div>
-                                        <label className="block text-xs font-semibold text-slate-500 mb-1">From</label>
+                            <div 
+                                className="absolute right-0 mt-2 w-72 bg-white border border-slate-200 rounded-2xl shadow-2xl p-6 z-[9999] animate-[slideDownFade_0.2s_ease-out_forwards]"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <div className="flex items-center justify-between mb-4">
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Filter by Date Range</p>
+                                    <button onClick={() => setShowDatePicker(false)} className="text-slate-400 hover:text-slate-600">
+                                        <i className="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="space-y-1 relative z-50">
+                                        <label htmlFor="start_date_picker" className="block text-xs font-semibold text-slate-500 cursor-pointer">From Date</label>
                                         <input
                                             type="date"
+                                            id="start_date_picker"
+                                            name="startDate"
                                             value={startDate}
-                                            max={endDate || undefined}
                                             onChange={e => setStartDate(e.target.value)}
-                                            className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition"
+                                            className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition cursor-pointer relative z-50"
                                         />
                                     </div>
-                                    <div>
-                                        <label className="block text-xs font-semibold text-slate-500 mb-1">To</label>
+                                    <div className="space-y-1 relative z-50">
+                                        <label htmlFor="end_date_picker" className="block text-xs font-semibold text-slate-500 cursor-pointer">To Date</label>
                                         <input
                                             type="date"
+                                            id="end_date_picker"
+                                            name="endDate"
                                             value={endDate}
-                                            min={startDate || undefined}
                                             onChange={e => setEndDate(e.target.value)}
-                                            className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition"
+                                            className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition cursor-pointer relative z-50"
                                         />
                                     </div>
                                 </div>
 
                                 {(startDate || endDate) && (
-                                    <div className="mt-3 flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2">
-                                        <span className="text-xs text-emerald-700 font-medium truncate">
-                                            {startDate || "Any"} → {endDate || "Any"}
+                                    <div className="mt-4 flex items-center justify-between bg-emerald-50 border border-emerald-100 rounded-xl px-3 py-2">
+                                        <span className="text-[10px] text-emerald-700 font-bold uppercase truncate">
+                                            {startDate || "Any"} — {endDate || "Any"}
                                         </span>
                                         <button
-                                            onClick={() => { setStartDate(""); setEndDate(""); }}
-                                            className="ml-2 text-emerald-400 hover:text-rose-500 transition text-xs font-bold flex-shrink-0"
-                                        >✕ Clear</button>
+                                            onClick={(e) => { e.stopPropagation(); setStartDate(""); setEndDate(""); }}
+                                            className="ml-2 text-emerald-500 hover:text-rose-500 transition text-xs font-black uppercase"
+                                        >Clear</button>
                                     </div>
                                 )}
 
-                                <div className="mt-4 flex gap-2">
+                                <div className="mt-6 flex gap-3">
                                     <button
                                         onClick={() => setShowDatePicker(false)}
-                                        className="flex-1 py-2 rounded-xl border border-slate-200 text-sm text-slate-500 hover:bg-slate-50 transition font-medium"
+                                        className="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-500 hover:bg-slate-50 transition font-bold"
                                     >Cancel</button>
                                     <button
-                                        onClick={handleDownloadExcel}
-                                        className="flex-1 py-2 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 active:scale-95 transition shadow-md shadow-emerald-200"
+                                        onClick={(e) => { e.stopPropagation(); handleDownloadExcel(); }}
+                                        className="flex-1 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700 active:scale-95 transition shadow-lg shadow-emerald-200 flex items-center justify-center gap-2"
                                     >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 inline mr-1 -mt-0.5" viewBox="0 0 24 24" fill="currentColor">
-                                            <path d="M12 16l-6-6h4V4h4v6h4l-6 6zm-7 2h14v2H5v-2z"/>
-                                        </svg>
+                                        <i className="fa-solid fa-download"></i>
                                         Download
                                     </button>
                                 </div>
@@ -213,7 +303,7 @@ export default function DocotrMainContent() {
                                 <span className="bg-emerald-100 text-emerald-600 w-12 h-12 rounded-xl flex items-center justify-center shadow-inner">
                                     <i className="fa-regular fa-calendar"></i>
                                 </span>
-                                Today's Patients
+                                Upcoming Appointments
                             </h2>
                             <div className="flex flex-col xl:flex-row gap-8">
                                 <div className="xl:w-1/3">

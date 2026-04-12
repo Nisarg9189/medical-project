@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useLoading } from "../../LoadingContext";
 
 const API_URL = import.meta.env.VITE_API;
@@ -7,16 +7,21 @@ const API_URL = import.meta.env.VITE_API;
 export default function BookAppointment() {
   const { setLoading } = useLoading();
   const { patientId } = useParams();
+  const navigate = useNavigate();
   console.log("Patient ID in BookAppointment:", patientId);
   const [form, setForm] = useState({
     age: "",
     camp: "",
     appointmentDate: "",
     appointmentTime: "",
-    gender: ""
+    gender: "",
+    doctor: "",
+    appointmentType: "offline"
   });
 
   const [camps, setCamps] = useState([]);
+  const [doctors, setDoctors] = useState([]);
+  const [bookingMode, setBookingMode] = useState("camp"); // "camp" or "doctor"
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -40,14 +45,23 @@ export default function BookAppointment() {
         return;
       }
       // console.log("Appointment Data:", form);
+      const selectedDoctorDoc = bookingMode === "doctor" ? doctors.find(d => d._id === form.doctor) : null;
       setForm({
         age: "",
         camp: "",
         appointmentDate: "",
         appointmentTime: "",
-        gender: ""
+        gender: "",
+        doctor: "",
+        appointmentType: "offline"
       });
-      alert("Appointment booked successfully!");
+      navigate(`/${patientId}/payment`, { state: { 
+          appointment: form, 
+          patientId: patientId,
+          fee: selectedDoctorDoc ? selectedDoctorDoc.appointmentFee : 0,
+          doctorName: selectedDoctorDoc ? selectedDoctorDoc.name : 'Unknown',
+          patientName: "Patient"
+      } });
     } catch (error) {
       console.error("Error booking appointment:", error);
       alert("Failed to book appointment. Please try again.");
@@ -64,7 +78,7 @@ export default function BookAppointment() {
         credentials: "include"
       });
       let data = await response.json();
-      if(data.ok && !data.ok) {
+      if(data.ok === false) {
         alert("Unauthorized Access");
         return;
       }
@@ -75,6 +89,15 @@ export default function BookAppointment() {
     }
   }
   collectCamps();
+  const collectDoctors = async () => {
+    try {
+      let response = await fetch(`${API_URL}/utils/doctors`, { method: "GET", credentials: "include" });
+      let data = await response.json();
+      if(data.ok === false) return;
+      setDoctors(data);
+    } catch (e) {}
+  };
+  collectDoctors();
   }, []);
 
 
@@ -108,6 +131,13 @@ export default function BookAppointment() {
                     </div>
                     <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight">Book Appointment</h2>
                     <p className="text-slate-500 mt-2 font-medium">Schedule your visit to a medical camp</p>
+                </div>
+
+                
+                {/* Booking Mode */}
+                <div className="flex justify-center gap-4 mb-6">
+                   <button type="button" onClick={() => setBookingMode("camp")} className={`px-6 py-2 rounded-xl font-bold ${bookingMode === "camp" ? "bg-emerald-500 text-white shadow-md" : "bg-emerald-50 text-emerald-600"}`}>Camp Booking</button>
+                   <button type="button" onClick={() => setBookingMode("doctor")} className={`px-6 py-2 rounded-xl font-bold ${bookingMode === "doctor" ? "bg-emerald-500 text-white shadow-md" : "bg-emerald-50 text-emerald-600"}`}>Direct Doctor Booking</button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -178,7 +208,9 @@ export default function BookAppointment() {
                     </div>
                 </div>
 
+                
                 {/* Choose camp */}
+                {bookingMode === "camp" && (
                 <div className="space-y-1.5 focus-within:text-emerald-600 transition-colors">
                     <label className="text-sm font-semibold text-slate-700 transition-colors flex items-center gap-2">
                         <i className="fa-solid fa-tent"></i> Camp
@@ -193,10 +225,39 @@ export default function BookAppointment() {
                     >
                         <option value="">Select camp</option>
                         {camps.map((camp) => (
-                        <option key={camp._id} value={camp._id}>{(camp.CampType).toUpperCase()}</option>
+                        <option key={camp._id} value={camp._id}>{(camp.CampType || "Unknown Type").toUpperCase()}</option>
                         ))}
                     </select>
                 </div>
+                )}
+                
+                {/* Choose doctor directly */}
+                {bookingMode === "doctor" && (
+                <div className="space-y-1.5 focus-within:text-emerald-600 transition-colors">
+                    <label className="text-sm font-semibold text-slate-700 transition-colors flex items-center gap-2">
+                        <i className="fa-solid fa-user-doctor"></i> Doctor
+                    </label>
+                    <select
+                        name="doctor"
+                        value={form.doctor}
+                        className="w-full bg-slate-50 border border-slate-200 text-slate-700 font-medium rounded-xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 focus:bg-white transition-all shadow-inner appearance-none relative"
+                        onChange={handleChange}
+                        required
+                        style={{ backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%2364748B"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>')`, backgroundPosition: 'right 1rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.25em' }}
+                    >
+                        <option value="">Select Doctor</option>
+                        {doctors.map((doc) => (
+                        <option key={doc._id} value={doc._id}>{doc.name} ({doc.specialization}) - Fees: ₹{doc.appointmentFee || 0} - Loc: {doc.location || 'N/A'}</option>
+                        ))}
+                    </select>
+                    {form.doctor && doctors.find(d => d._id === form.doctor) && (
+                      <p className="text-sm text-emerald-600 mt-2 font-semibold">
+                         Fee: ₹{doctors.find(d => d._id === form.doctor).appointmentFee || 0} | Location: {doctors.find(d => d._id === form.doctor).location || 'Not Specified'}
+                      </p>
+                    )}
+                </div>
+                )}
+
 
                 {/* Appoinment Type */}
                 <div className="space-y-1.5 focus-within:text-emerald-600 transition-colors">
@@ -204,7 +265,8 @@ export default function BookAppointment() {
                         <i className="fa-solid fa-video"></i> Appointment Type
                     </label>
                     <select
-                        name="doctor"
+                        name="appointmentType"
+                        value={form.appointmentType}
                         className="w-full bg-slate-50 border border-slate-200 text-slate-700 font-medium rounded-xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 focus:bg-white transition-all shadow-inner appearance-none relative"
                         onChange={handleChange}
                         style={{ backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%2364748B"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>')`, backgroundPosition: 'right 1rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.25em' }}
