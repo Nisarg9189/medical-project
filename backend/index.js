@@ -14,7 +14,7 @@ const io = new Server(server, {
 const cors = require("cors");
 const mongoose = require("mongoose");
 const session = require("express-session");
-const MongoStore = require("connect-mongo").default;
+const MongoStore = require("connect-mongo");
 
 const adminRoutes = require("./routes/admin.js");
 const doctorRoutes = require("./routes/doctor.js");
@@ -44,7 +44,6 @@ const sessionInfo = {
   saveUninitialized: false,
   proxy: true,
   cookie: {
-    expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
     secure: false,
@@ -97,8 +96,8 @@ main().then(() => {
 })
 
 async function main() {
-  await mongoose.connect('mongodb://127.0.0.1:27017/ruralhospital');
-  // await mongoose.connect(dbUrl);
+  // await mongoose.connect('mongodb://127.0.0.1:27017/ruralhospital');
+  await mongoose.connect(dbUrl);
 
   // use `await mongoose.connect('mongodb://user:password@127.0.0.1:27017/test');` if your database has auth enabled
 }

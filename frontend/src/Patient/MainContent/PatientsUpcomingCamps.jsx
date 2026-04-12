@@ -16,17 +16,24 @@ export default function PatientsUpcomingCamps({ patientId }) {
 
     useEffect(() => {
         let fetchCamps = async () => {
-            let res = await fetch(`${API_URL}/utils/camps?lastId=${lastId ? lastId : ""}`, {
-                method: "GET",
-                credentials: "include"
-            });
-            let dataBack = await res.json();
-            // console.log(dataBack);
-            setCamps((oldCamps) => {
-                if (dataBack.length === 0) return oldCamps;
-                const newCamps = dataBack.filter((camp) => !oldCamps.some((oldCamp) => oldCamp._id.toString() === camp._id.toString()));
-                return [...oldCamps, ...newCamps];
-            });
+            try {
+                let res = await fetch(`${API_URL}/utils/camps?lastId=${lastId ? lastId : ""}`, {
+                    method: "GET",
+                    credentials: "include"
+                });
+                if (!res.ok) {
+                    console.log("Unauthorized or failed request");
+                    return;
+                }
+                let dataBack = await res.json();
+                setCamps((oldCamps) => {
+                    if (!Array.isArray(dataBack) || dataBack.length === 0) return oldCamps;
+                    const newCamps = dataBack.filter((camp) => !oldCamps.some((oldCamp) => oldCamp._id.toString() === camp._id.toString()));
+                    return [...oldCamps, ...newCamps];
+                });
+            } catch (error) {
+                console.error("Error fetching camps:", error);
+            }
         }
 
         fetchCamps();

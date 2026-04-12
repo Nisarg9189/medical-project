@@ -56,12 +56,17 @@ router.post("/login", wrapAsync(async (req, res) => {
 router.post("/signup", wrapAsync(async (req, res) => {
   let { fullName, email, password, role } = req.body;
 
-  if (!fullName || email || password || role) {
+  if (!fullName || !email || !password || !role) {
     res.status(400).json({ message: "All fields are required", ok: false });
     return;
   }
 
-  let existingUser = await Admin.findOne({ email });
+  let existingUser;
+  if (role === "admin") {
+    existingUser = await Admin.findOne({ email });
+  } else if (role === "patient") {
+    existingUser = await Patient.findOne({ email });
+  }
   if (existingUser) {
     res.status(400).json({ message: "User already exists", ok: false });
     return;

@@ -10,26 +10,27 @@ export default function Card({ adminId }) {
     });
 
     useEffect(() => {
-        //fetch card data from backend
-        try {
-            const fetchCardData = async () => {
+        const fetchCardData = async () => {
+            try {
                 let response = await fetch(`${API_URL}/admin/${adminId}/card-details`, {
                     method: "GET",
                     credentials: "include"
                 });
+                if (!response.ok) {
+                    console.log("Unauthorized or failed request");
+                    return;
+                }
                 let data = await response.json();
-                // console.log(data);
                 if (!data.ok) {
                     alert("Unauthorized Access");
                     return;
                 }
-                // console.log(data);
                 setCardData(data);
+            } catch (error) {
+                console.log(error);
             }
-            fetchCardData();
-        } catch (error) {
-            console.log(error);
         }
+        fetchCardData();
     }, [adminId])
     return (
         <div id="cardList" className="mt-8 flex gap-8 items-start w-full overflow-x-auto pb-12 pt-4 px-4" style={{ perspective: '1200px' }}>

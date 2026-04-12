@@ -13,14 +13,12 @@ export default function UpcomingCamps({ adminId }) {
                     method: "GET",
                     credentials: "include"
                 });
-                let res = await camp.json();
-                // console.log(res);
-                if (res.ok && !res.ok) {
-                    alert("Unauthorized Access");
+                if (!camp.ok) {
+                    console.log("Unauthorized or failed request");
                     setCamps([]);
                     return;
                 }
-                // console.log(res);
+                let res = await camp.json();
                 setCamps((prevCamps) => {
                     if (!lastCampId) return res;
 
@@ -32,7 +30,7 @@ export default function UpcomingCamps({ adminId }) {
                 });
 
             } catch (err) {
-                console.error("Error fetching doctors:", err);
+                console.error("Error fetching camps:", err);
                 setCamps([]);
             }
         };
