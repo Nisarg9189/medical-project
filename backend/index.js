@@ -49,6 +49,7 @@ const sessionInfo = {
     httpOnly: true,
     secure: true,
     sameSite: "none"
+
   },
 };
 app.use(cors({
