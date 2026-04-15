@@ -1,0 +1,44 @@
+Authentication Testing Documentation (`auth.test.js`)
+
+This document outlines the test suite for the authentication system, specifically focusing on the login functionality. The tests are written using `supertest` for making HTTP requests to the Express application and `mongodb-memory-server` to provide an isolated, temporary database for testing.
+
+Tested API Endpoint
+===================
+API: `POST /auth/login`
+Purpose: Authenticate users (Admin, Doctor, Patient) and log them into the system.
+
+Test Cases Implemented
+======================
+
+1. Successful Admin Login
+   - Description: Verifies that an admin user with the correct email, password, and role can successfully log in.
+   - Setup: Hash a password and create a dummy Admin user.
+   - Request Body: { email, password, role: "admin" }
+   - Expected Result: Status Code 200 (OK), Response body contains `ok: true`.
+
+2. Wrong Password
+   - Description: Verifies that the API securely rejects login attempts where the account exists but the user provides an incorrect password.
+   - Setup: Hash a password and create an Admin user.
+   - Request Body: { email, password: "wrongPassword", role: "admin" }
+   - Expected Result: Status Code 401 (Unauthorized), Response body contains `ok: false`.
+
+3. User Not Found
+   - Description: Verifies that the API Rejects login attempts for an email address that does not exist in the database.
+   - Request Body: { email: "nouser@test.com", password: "123456", role: "doctor" }
+   - Expected Result: Status Code 401 (Unauthorized), Response body contains `ok: false`.
+
+4. Invalid Role
+   - Description: Verifies that providing an invalid or non-existent role (e.g., "manager") during login correctly denies access even if the other credentials might somehow bypass standard checks.
+   - Request Body: { email, password, role: "manager" }
+   - Expected Result: Status Code 401 (Unauthorized), Response body contains `ok: false`.
+
+5. Missing Fields
+   - Description: Verifies robust error handling on the server when required fields (like email or password) are empty.
+   - Request Body: { email: "", password: "", role: "admin" }
+   - Expected Result: Status Code 400 (Bad Request), Response body contains `ok: false`.
+
+
+Testing Environment Setup & Teardown
+====================================
+- `beforeAll`: Initializes the `MongoMemoryServer` and establishes a Mongoose connection to this temporary database before any tests in the suite execute.
+- `afterAll`: Safely disconnects Mongoose and stops the `MongoMemoryServer` instance to ensure clean up and prevent open handle warnings after tests are fully complete.
