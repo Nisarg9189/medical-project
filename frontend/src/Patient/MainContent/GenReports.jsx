@@ -1,10 +1,11 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 const API_URL = import.meta.env.VITE_API;
 
 export default function GenReports() {
     const { patientId } = useParams();
+    const navigate = useNavigate();
     let [camps, setCamps] = useState([]);
     let [selectedCamp, setSelectedCamp] = useState({
         campId: ""
@@ -115,12 +116,20 @@ export default function GenReports() {
                         </select>
                     </div>
 
-                    <button
-                        onClick={downloadReport}
-                        className="w-full py-4 mt-4 border border-transparent rounded-xl shadow-[0_5px_15px_rgba(14,165,233,0.3)] text-white font-bold bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 hover:shadow-[0_8px_20px_rgba(14,165,233,0.4)] transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2"
-                    >
-                        <i className="fa-solid fa-download"></i> Download PDF Report
-                    </button>
+                    <div className="flex gap-3 mt-4">
+                        <button
+                            onClick={() => navigate(-1)}
+                            className="w-1/3 py-4 border border-slate-300 text-slate-700 rounded-xl font-bold bg-white/50 hover:bg-white hover:shadow-md transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2"
+                        >
+                            <i className="fa-solid fa-arrow-left"></i> Back
+                        </button>
+                        <button
+                            onClick={downloadReport}
+                            className="w-2/3 py-4 border border-transparent rounded-xl shadow-[0_5px_15px_rgba(14,165,233,0.3)] text-white font-bold bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 hover:shadow-[0_8px_20px_rgba(14,165,233,0.4)] transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2"
+                        >
+                            <i className="fa-solid fa-download"></i> Download PDF Report
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

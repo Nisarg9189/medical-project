@@ -48,12 +48,20 @@ export default function Payment() {
                     <span className="font-black text-2xl">₹{bookingData.fee || 0}</span>
                 </div>
 
-                <button 
-                    onClick={handlePay}
-                    className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold rounded-xl shadow-[0_5px_15px_rgba(16,185,129,0.3)] hover:scale-[1.02] transition"
-                >
-                    Pay Successfully
-                </button>
+                <div className="flex gap-3">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="w-1/3 py-4 border border-slate-300 text-slate-700 rounded-xl font-bold bg-white hover:bg-slate-50 hover:shadow-md transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2"
+                    >
+                        <i className="fa-solid fa-arrow-left"></i> Back
+                    </button>
+                    <button 
+                        onClick={handlePay}
+                        className="w-2/3 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold rounded-xl shadow-[0_5px_15px_rgba(16,185,129,0.3)] hover:scale-[1.02] transition flex items-center justify-center gap-2"
+                    >
+                        <i className="fa-solid fa-check"></i> Pay Successfully
+                    </button>
+                </div>
             </div>
         </div>
     );

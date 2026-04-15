@@ -278,13 +278,22 @@ export default function BookAppointment() {
                     </select>
                 </div>
 
-                {/* Button */}
-                <button
-                    type="submit"
-                    className="w-full py-4 mt-6 border border-transparent rounded-xl shadow-[0_5px_15px_rgba(16,185,129,0.3)] text-white font-bold bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 hover:shadow-[0_8px_20px_rgba(16,185,129,0.4)] transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2"
-                >
-                    <i className="fa-solid fa-check"></i> Book Appointment
-                </button>
+                {/* Buttons */}
+                <div className="flex gap-4 mt-6">
+                    <button
+                        type="button"
+                        onClick={() => navigate(-1)}
+                        className="w-1/3 py-4 border border-slate-300 text-slate-700 rounded-xl font-bold bg-white/50 hover:bg-white hover:shadow-md transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2"
+                    >
+                        <i className="fa-solid fa-arrow-left"></i> Back
+                    </button>
+                    <button
+                        type="submit"
+                        className="w-2/3 py-4 border border-transparent rounded-xl shadow-[0_5px_15px_rgba(16,185,129,0.3)] text-white font-bold bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 hover:shadow-[0_8px_20px_rgba(16,185,129,0.4)] transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2"
+                    >
+                        <i className="fa-solid fa-check"></i> Book Appointment
+                    </button>
+                </div>
             </form>
         </div>
     );
