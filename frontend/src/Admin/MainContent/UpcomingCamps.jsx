@@ -120,7 +120,7 @@ export default function UpcomingCamps({ adminId }) {
                                 </div>
 
                                 {/* Right side buttons */}
-                                <div className="flex items-center justify-center gap-4">
+                                {/* <div className="flex items-center justify-center gap-4">
                                     <button
                                         className="shrink-0 bg-white border border-rose-200 text-rose-600 px-4 py-2.5 rounded-xl hover:bg-rose-500 hover:text-white hover:border-transparent hover:shadow-[0_5px_15px_rgba(244,63,94,0.3)] transform hover:-translate-y-0.5 transition-all duration-300 font-bold"
                                         onClick={() => handleCancleCamp(camp._id)}
@@ -134,7 +134,7 @@ export default function UpcomingCamps({ adminId }) {
                                     >
                                         Edit
                                     </button>
-                                </div>
+                                </div> */}
                             </div>
                         ))}
                     </div>
